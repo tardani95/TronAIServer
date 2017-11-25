@@ -6,7 +6,7 @@
 
     <groupId>com.nanproduction</groupId>
     <artifactId>TronAIServer</artifactId>
-    <version>0_1_alpha</version>
+    <version>0_1_beta</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -14,7 +14,7 @@
     </properties>
 
     <build>
-        <!-- <finalName>SpaceWarFX</finalName> -->
+        <!-- <finalName>TronAI</finalName> -->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -60,5 +60,20 @@
             </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.webbitserver</groupId>
+            <artifactId>webbit</artifactId>
+            <version>0.4.15</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.netty</groupId>
+            <artifactId>netty</artifactId>
+            <version>3.2.10.Final</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
 
 </project>
