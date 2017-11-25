@@ -12,14 +12,12 @@ import javafx.scene.paint.Color;
 import javax.swing.*;
 import java.awt.event.KeyListener;
 
-public class MainWindowController {
+public class MainWindowController  {
 
     public static final int CELL_SIZE = 20;
     public static final double BODY_SCALE = 0.8;
 
     private Game game;
-
-
 
 
     @FXML
@@ -40,22 +38,13 @@ public class MainWindowController {
         drawBase();
         game=new Game(this);
 
-    }
+//        canvas.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+//            @Override
+//            public void handle(KeyEvent event) {
+//                System.out.printf("press");
+//            }
+//        });
 
-    private void installEventHandler(final Node keyNode) {
-        // handler for enter key press / release events, other keys are
-        // handled by the parent (keyboard) node handler
-        final EventHandler<KeyEvent> keyEventHandler =
-                new EventHandler<KeyEvent>() {
-                    public void handle(final KeyEvent keyEvent) {
-                        if (keyEvent.getCode() == KeyCode.ENTER) {
-                            System.out.printf("ENTER");
-                        }
-                    }
-                };
-
-        keyNode.setOnKeyPressed(keyEventHandler);
-        keyNode.setOnKeyReleased(keyEventHandler);
     }
 
     void drawPlayers()
@@ -99,5 +88,7 @@ public class MainWindowController {
             gc.strokeLine(0,j* CELL_SIZE,canvas.getWidth(),j*CELL_SIZE);
         }
     }
+
+
 
 }
