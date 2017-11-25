@@ -27,7 +27,7 @@ public class MainWindowController {
 //        System.out.println("Stopping Server");
 //        server.stop();
 
-        WebServer webServer = WebServers.createWebServer(8080);
+        WebServer webServer = WebServers.createWebServer(8090);
         webServer.add(new StaticFileHandler("/static-files"));
         webServer.add("/websocket", new WebSocketHandler());
         webServer.start();
