@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import javax.swing.*;
+import java.util.List;
 import java.awt.event.KeyListener;
 
 public class MainWindowController  {
@@ -61,29 +62,37 @@ public class MainWindowController  {
     {
         gc.clearRect(0, 0, Game.MAP_SIZE_X*CELL_SIZE, Game.MAP_SIZE_Y*CELL_SIZE);
         drawBase();
-        Player player=game.getPlayer();
-        gc.setFill(Color.DARKBLUE); //achivemenet
-        gc.fillRect(CELL_SIZE*player.getHead().getX(),CELL_SIZE*player.getHead().getY(),CELL_SIZE,CELL_SIZE); //Fill the Head
 
         gc.setFill(Color.RED); //achivemenet
-        gc.fillRect(CELL_SIZE*game.getAchievement().getX(),CELL_SIZE*game.getAchievement().getY(),CELL_SIZE,CELL_SIZE);
+        gc.fillRect(CELL_SIZE * game.getAchievement().getX(), CELL_SIZE * game.getAchievement().getY(), CELL_SIZE, CELL_SIZE);
 
-        gc.setStroke(Color.DARKBLUE);
-        gc.setLineWidth(CELL_SIZE*BODY_SCALE);
-        if(player.getTail().size()==0){
-            return;
+        for(Player player: game.getPlayers()) {
+            gc.setFill(player.getColor()); //playerHead
+            gc.fillRect(CELL_SIZE * player.getHead().getX(), CELL_SIZE * player.getHead().getY(), CELL_SIZE, CELL_SIZE); //Fill the Head
+
+
+
+            gc.setStroke(player.getColor()); //playerBody
+            gc.setLineWidth(CELL_SIZE * BODY_SCALE);
+            if (player.getTail().size() == 0) {
+                continue;
+            }
+            gc.strokeLine(CELL_SIZE * (player.getHead().getX() + 0.5), CELL_SIZE * (player.getHead().getY() + 0.5), CELL_SIZE * (player.getTail().get(0).getX() + 0.5), CELL_SIZE * (player.getTail().get(0).getY() + 0.5));
+            for (int i = 1; i < player.getTail().size(); i++) {
+                gc.strokeLine(CELL_SIZE * (player.getTail().get(i - 1).getX() + 0.5), CELL_SIZE * (player.getTail().get(i - 1).getY() + 0.5), CELL_SIZE * (player.getTail().get(i).getX() + 0.5), CELL_SIZE * (player.getTail().get(i).getY() + 0.5)); //draw body
+            }
         }
-        gc.strokeLine(CELL_SIZE*(player.getHead().getX()+0.5), CELL_SIZE*(player.getHead().getY()+0.5), CELL_SIZE*(player.getTail().get(0).getX()+0.5), CELL_SIZE*(player.getTail().get(0).getY()+0.5));
-        for(int i=1; i<player.getTail().size(); i++){
-           gc.strokeLine(CELL_SIZE*(player.getTail().get(i-1).getX()+0.5), CELL_SIZE*(player.getTail().get(i-1).getY()+0.5), CELL_SIZE*(player.getTail().get(i).getX()+0.5), CELL_SIZE*(player.getTail().get(i).getY()+0.5)); //draw body
-        }
-        gc.setStroke(Color.BLACK);
+
 
 
     }
 
-    public void setScore(int score){
-        scoreText.setText("SCORE: "+score);
+    public void setScore(List<Player> playerList){
+        StringBuilder stringBuilder=new StringBuilder();
+        for(Player player: playerList){
+            stringBuilder.append(player.getId()+"\t"+player.getScore()+"\n");
+        }
+        scoreText.setText(stringBuilder.toString());
     }
 
     public void endingGame(){

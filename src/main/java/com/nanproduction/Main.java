@@ -32,8 +32,8 @@ public class Main extends Application{
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                System.out.printf("PRESS");
-                game.setKeyEvent(event);
+                //System.out.printf("PRESS");
+                game.addKeyEvent(event);
             }
         });
         primaryStage.setScene(scene);

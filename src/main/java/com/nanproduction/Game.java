@@ -1,10 +1,13 @@
 package com.nanproduction;
 
 
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 
-import java.io.IOException;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -12,17 +15,24 @@ public class Game extends Thread {
 
     public static final int MAP_SIZE_X = 50;
     public static final int MAP_SIZE_Y = 35;
-    private static Game instance=new Game();
+    private static Game instance = new Game();
+    private static final int NUM_OF_PLAYERS = 2;
 
-    private Player player;
+    private List<Player> players;
     private Achievement achievement;
 
-    public void setKeyEvent(KeyEvent keyEvent) {
-        this.keyEvent = keyEvent;
+    synchronized public void addKeyEvent(KeyEvent keyEvent) {
+        KeyCode keyCode=keyEvent.getCode();
+        for(int i=0; i<players.size(); i++){
+            for(int j=0; j<4; j++){
+                if(keyCode==Player.KEY_CUTS[j][players.get(i).getId()]){
+                    players.get(i).setKeyCode(keyCode);
+                    break;
+                }
+            }
+        }
+
     }
-
-    private static KeyEvent keyEvent;
-
 
 
     public Achievement getAchievement() {
@@ -33,9 +43,12 @@ public class Game extends Thread {
 
     private List<Point> freeCoords;
 
-    private Game(){}
+    private Game() {
+    }
 
-    public static Game getInstance(){return instance;}
+    public static Game getInstance() {
+        return instance;
+    }
 
     public void setAchievement(Achievement achievement) {
         this.achievement = achievement;
@@ -49,8 +62,12 @@ public class Game extends Thread {
                 freeCoords.add(new Point(i, j));
             }
         }
-
-        player = new Player(getRandFreeCoord());
+        players = new ArrayList<>();
+        for(int i = 0; i< NUM_OF_PLAYERS; i++){
+            players.add(new Player(getRandFreeCoord(), i));
+        }
+        players.get(0).setColor(Color.BLUE);
+        players.get(1).setColor(Color.GREEN);
         achievement = new Achievement(getRandFreeCoord());
 
 
@@ -66,43 +83,57 @@ public class Game extends Thread {
         return point;
     }
 
-    public Player getPlayer() {
-        return player;
+    public List<Player> getPlayers() {
+        return players;
     }
 
-    private void movePlayers(){
-
-
-        player.move(this);
-
-
+    private void movePlayers() {
+        for (Player player : players) {
+            player.move();
+        }
     }
 
     public void run() {
-        while (!player.isGameOver()) {
+        while (!players.isEmpty()) {
             controller.drawPlayers();
-            try {
-                player.stepPlayer(keyEvent);
-            } catch (IOException e) {
-                e.printStackTrace();
+            for (Player player : players) {
+                player.stepPlayer();
             }
             movePlayers();
+            for(int i=0; i<players.size(); i++)
+            {
+                for(int j=0; j<players.size(); j++){
+                    if(i==j){continue;}
+
+                    players.get(i).collisionDetection(players.get(j));
+                }
+            }
+            for (Iterator<Player> iter=players.iterator(); iter.hasNext();){
+                Player player=iter.next();
+                if(player.isGameOver()){
+                    player.deletePlayer(this);
+                    iter.remove();
+                    //players.remove(player);
+                }
+            }
+
+
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            controller.setScore(player.getScore());
+            controller.setScore(players);
         }
         controller.endingGame();
         stop();
     }
 
-    public void removeFreeCoord(Point point){
+    public void removeFreeCoord(Point point) {
         freeCoords.remove(point);
     }
 
-    public  void addFreeCoord(Point point){
+    public void addFreeCoord(Point point) {
         freeCoords.add(point);
     }
 }
