@@ -8,6 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
@@ -15,13 +16,20 @@ import java.awt.event.KeyListener;
 public class MainWindowController  {
 
     public static final int CELL_SIZE = 20;
-    public static final double BODY_SCALE = 0.8;
+    public static final double BODY_SCALE = 0.5;
 
     private Game game;
 
 
     @FXML
     public Canvas canvas;
+
+    @FXML
+    public Text stateText;
+
+    @FXML
+    public Text scoreText;
+
     private static GraphicsContext gc;
 
     public MainWindowController() {
@@ -33,11 +41,13 @@ public class MainWindowController  {
     void initialize(){
         System.out.println("Initialize() called");
         gc=canvas.getGraphicsContext2D();
+        stateText.setText("PLAYING");
+
 
         initWindow();
         drawBase();
-        game=new Game(this);
-
+        game=Game.getInstance();
+        game.init(this);
 //        canvas.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 //            @Override
 //            public void handle(KeyEvent event) {
@@ -47,16 +57,18 @@ public class MainWindowController  {
 
     }
 
-    void drawPlayers()
+    public void drawPlayers()
     {
-        gc.clearRect(0, 0, Game.MAP_SIZE_X, Game.MAP_SIZE_Y);
+        gc.clearRect(0, 0, Game.MAP_SIZE_X*CELL_SIZE, Game.MAP_SIZE_Y*CELL_SIZE);
         drawBase();
         Player player=game.getPlayer();
+        gc.setFill(Color.DARKBLUE); //achivemenet
         gc.fillRect(CELL_SIZE*player.getHead().getX(),CELL_SIZE*player.getHead().getY(),CELL_SIZE,CELL_SIZE); //Fill the Head
 
         gc.setFill(Color.RED); //achivemenet
         gc.fillRect(CELL_SIZE*game.getAchievement().getX(),CELL_SIZE*game.getAchievement().getY(),CELL_SIZE,CELL_SIZE);
 
+        gc.setStroke(Color.DARKBLUE);
         gc.setLineWidth(CELL_SIZE*BODY_SCALE);
         if(player.getTail().size()==0){
             return;
@@ -65,9 +77,17 @@ public class MainWindowController  {
         for(int i=1; i<player.getTail().size(); i++){
            gc.strokeLine(CELL_SIZE*(player.getTail().get(i-1).getX()+0.5), CELL_SIZE*(player.getTail().get(i-1).getY()+0.5), CELL_SIZE*(player.getTail().get(i).getX()+0.5), CELL_SIZE*(player.getTail().get(i).getY()+0.5)); //draw body
         }
+        gc.setStroke(Color.BLACK);
 
 
+    }
 
+    public void setScore(int score){
+        scoreText.setText("SCORE: "+score);
+    }
+
+    public void endingGame(){
+        stateText.setText("GAME OVER!");
     }
 
     private void initWindow() {
@@ -76,6 +96,7 @@ public class MainWindowController  {
     }
 
     private void drawBase(){
+        gc.setStroke(Color.BLACK);
         gc.setLineWidth(4);
         gc.strokeRect(0,0,canvas.getWidth(),canvas.getHeight());
 

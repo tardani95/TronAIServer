@@ -8,13 +8,14 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-public class Main extends Application implements Handler{
+public class Main extends Application{
 
     private static final int SCREEN_SIZE_X = 1280;
     private static final int SCREEN_SIZE_Y = 750;
 
     private Scene scene;
-    private KeyEvent keyEvent;
+
+    private Game game;
 
     public static void main(String[] args) {
         System.out.println("main()");
@@ -23,6 +24,7 @@ public class Main extends Application implements Handler{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        game=Game.getInstance();
         System.out.println("start()");
         Parent root = FXMLLoader.load(getClass().getResource("/mainWindow.fxml"));
         primaryStage.setTitle("TronAIServerGUI");
@@ -30,8 +32,8 @@ public class Main extends Application implements Handler{
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                System.out.printf("press");
-                keyEvent=event;
+                System.out.printf("PRESS");
+                game.setKeyEvent(event);
             }
         });
         primaryStage.setScene(scene);
@@ -45,13 +47,4 @@ public class Main extends Application implements Handler{
     }
 
 
-    @Override
-    public void giveKeyEvent(KeyEvent keyEvent) {
-        this.keyEvent=keyEvent;
-    }
-
-    @Override
-    public KeyEvent getKeyEvent() {
-        return keyEvent;
-    }
 }

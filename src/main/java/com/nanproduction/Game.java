@@ -1,5 +1,8 @@
 package com.nanproduction;
 
+
+import javafx.scene.input.KeyEvent;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +12,18 @@ public class Game extends Thread {
 
     public static final int MAP_SIZE_X = 50;
     public static final int MAP_SIZE_Y = 35;
+    private static Game instance=new Game();
 
     private Player player;
     private Achievement achievement;
+
+    public void setKeyEvent(KeyEvent keyEvent) {
+        this.keyEvent = keyEvent;
+    }
+
+    private static KeyEvent keyEvent;
+
+
 
     public Achievement getAchievement() {
         return achievement;
@@ -21,13 +33,16 @@ public class Game extends Thread {
 
     private List<Point> freeCoords;
 
-    public Game(MainWindowController controller) {
-        this.controller = controller;
-        init();
-        start();
+    private Game(){}
+
+    public static Game getInstance(){return instance;}
+
+    public void setAchievement(Achievement achievement) {
+        this.achievement = achievement;
     }
 
-    private void init() {
+    public void init(MainWindowController controller) {
+        this.controller = controller;
         freeCoords = new ArrayList<>();
         for (int i = 0; i < MAP_SIZE_X; i++) {
             for (int j = 0; j < MAP_SIZE_Y; j++) {
@@ -37,6 +52,9 @@ public class Game extends Thread {
 
         player = new Player(getRandFreeCoord());
         achievement = new Achievement(getRandFreeCoord());
+
+
+        start();
     }
 
 
@@ -64,12 +82,20 @@ public class Game extends Thread {
         while (!player.isGameOver()) {
             controller.drawPlayers();
             try {
-                player.stepPlayer();
+                player.stepPlayer(keyEvent);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             movePlayers();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.setScore(player.getScore());
         }
+        controller.endingGame();
+        stop();
     }
 
     public void removeFreeCoord(Point point){
