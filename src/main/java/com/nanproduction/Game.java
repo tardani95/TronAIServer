@@ -24,29 +24,6 @@ public class Game extends Thread {
     private static List<WebSocketConnection> watchers=new ArrayList<>();
     private Achievement achievement;
 
-    synchronized public void addKeyEvent(KeyEvent keyEvent) {
-        KeyCode keyCode = keyEvent.getCode();
-        for (int i = 0; i < players.size(); i++) {
-            for (int j = 0; j < 4; j++) {
-                if (keyCode == Player.KEY_CUTS[j][players.get(i).getId()]) {
-                    players.get(i).setKeyCode(keyCode);
-                    break;
-                }
-            }
-        }
-    }
-
-    /*synchronized public void addKeyCode(String key) {
-        KeyCode keyCode = KeyCode.valueOf(key);
-        for (int i = 0; i < players.size(); i++) {
-            for (int j = 0; j < 4; j++) {
-                if (keyCode == Player.KEY_CUTS[j][players.get(i).getId()]) {
-                    players.get(i).setKeyCode(keyCode);
-                    break;
-                }
-            }
-        }
-    }*/
 
 
     public Achievement getAchievement() {
