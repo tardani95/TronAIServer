@@ -22,10 +22,10 @@ enum eDirection {STOP, LEFT, RIGHT, UP, DOWN};
 public class Player {
 
     public static final KeyCode[][] KEY_CUTS = {
-            {A, LEFT},
-            {D, RIGHT},
-            {W, UP},
-            {S, DOWN}
+            {A, LEFT, J, NUMPAD4},
+            {D, RIGHT,L, NUMPAD6},
+            {W, UP,I, NUMPAD8},
+            {S, DOWN,K, NUMPAD5}
     };
 
     private int id;
@@ -85,18 +85,22 @@ public class Player {
     synchronized public void stepPlayer() {
         if (keyCode == null) return;
         if(keyCode==KEY_CUTS[0][id]){
+            if(dir== eDirection.RIGHT){return;}
             dir = eDirection.LEFT;
             return;
         }
         if(keyCode==KEY_CUTS[1][id]){
+            if(dir== eDirection.LEFT){return;}
             dir = eDirection.RIGHT;
             return;
         }
         if(keyCode==KEY_CUTS[2][id]){
+            if(dir== eDirection.DOWN){return;}
             dir = eDirection.UP;
             return;
         }
         if(keyCode==KEY_CUTS[3][id]){
+            if(dir== eDirection.UP){return;}
             dir = eDirection.DOWN;
             return;
         }

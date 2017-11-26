@@ -16,7 +16,8 @@ public class Game extends Thread {
     public static final int MAP_SIZE_X = 50;
     public static final int MAP_SIZE_Y = 35;
     private static Game instance = new Game();
-    private static final int NUM_OF_PLAYERS = 2;
+    private static final int NUM_OF_PLAYERS = 4;
+    private static final Color[] COLORS=new Color[]{Color.BLUE, Color.GREEN, Color.YELLOW, Color.BROWN};
 
     private List<Player> players;
     private Achievement achievement;
@@ -65,9 +66,8 @@ public class Game extends Thread {
         players = new ArrayList<>();
         for(int i = 0; i< NUM_OF_PLAYERS; i++){
             players.add(new Player(getRandFreeCoord(), i));
+            players.get(i).setColor(COLORS[i]);
         }
-        players.get(0).setColor(Color.BLUE);
-        players.get(1).setColor(Color.GREEN);
         achievement = new Achievement(getRandFreeCoord());
 
 
@@ -94,7 +94,7 @@ public class Game extends Thread {
     }
 
     public void run() {
-        while (!players.isEmpty()) {
+        while (players.size()>1) {
             controller.drawPlayers();
             for (Player player : players) {
                 player.stepPlayer();
@@ -119,7 +119,7 @@ public class Game extends Thread {
 
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(80);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
