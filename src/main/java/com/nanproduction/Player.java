@@ -1,25 +1,18 @@
 package com.nanproduction;
 
-import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 
-import javax.swing.*;
-
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import static javafx.scene.input.KeyCode.*;
 
-enum eDirection {STOP, LEFT, RIGHT, UP, DOWN};
 
 
 public class Player {
+
+
 
     public static final KeyCode[][] KEY_CUTS = {
             {A, LEFT, J, NUMPAD4},

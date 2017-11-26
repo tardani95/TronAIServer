@@ -1,5 +1,6 @@
 package com.nanproduction.Server;
 
+import com.nanproduction.Game;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 
@@ -8,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WebSocketHandler extends BaseWebSocketHandler {
 
+    private Game game;
     private int connections = 0;
     private static Map<WebSocketConnection,String> players = new ConcurrentHashMap<>();
 
@@ -18,6 +20,7 @@ public class WebSocketHandler extends BaseWebSocketHandler {
                 + "Total No. of racers: " + this.connections + ".");
         System.out.println("Someone connected. Connections: "
                 + this.connections);
+        game = Game.getInstance();
     }
 
     @Override
@@ -36,12 +39,11 @@ public class WebSocketHandler extends BaseWebSocketHandler {
             players.put(connection,message);
             System.out.println("User connected: "+ message);
         }else {
-            System.out.println(userID + ": " + message+" time:"+ System.currentTimeMillis()%10000);
+            System.out.println(userID + ": " + message/*+" time:"+ System.currentTimeMillis()%10000*/);
+            //Game.getInstance().addKeyCode(message);
+            game.addKeyCode(message);
         }
-
-
-        connection.send("The server has received the following message:"
-                + message);
+        //connection.send("The server has received the following message:"+ message);
     }
 
 }

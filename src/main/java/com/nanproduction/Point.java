@@ -2,8 +2,6 @@ package com.nanproduction;
 
 import java.util.Random;
 
-import static com.nanproduction.eDirection.*;
-
 public class Point {
     private int x = 0;
     private int y = 0;
@@ -60,7 +58,7 @@ public class Point {
     }
 
     boolean outOfBorder(){
-        return x > Game.MAP_SIZE_X|| x < 0 || y > Game.MAP_SIZE_Y || y < 0;
+        return x >= Game.MAP_SIZE_X || x < 0 || y >= Game.MAP_SIZE_Y || y < 0;
     }
 
 }
