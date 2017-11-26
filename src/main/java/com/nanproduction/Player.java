@@ -25,11 +25,12 @@ public class Player {
     private eDirection dir;
     private int score;
     private String color;
-    private KeyCode keyCode;
+    private String keyCode;
 
     public String getColor() {
         return color;
     }
+
     public int getScore() {
         return score;
     }
@@ -62,7 +63,7 @@ public class Player {
         this.color = color;
     }
 
-    public void setKeyCode(KeyCode keyCode) {
+    public void setKeyCode(String keyCode) {
         this.keyCode = keyCode;
     }
 
@@ -89,33 +90,33 @@ public class Player {
 
     synchronized public void stepPlayer() {
         if (keyCode == null) return;
-        if (keyCode == KEY_CUTS[0][id]) {
-            if (dir == eDirection.RIGHT) {
+        switch (keyCode) {
+            case "8":
+                if (dir == eDirection.DOWN) {
+                    return;
+                }
+                dir = eDirection.UP;
                 return;
-            }
-            dir = eDirection.LEFT;
-            return;
-        }
-        if (keyCode == KEY_CUTS[1][id]) {
-            if (dir == eDirection.LEFT) {
+            case "4":
+                if (dir == eDirection.RIGHT) {
+                    return;
+                }
+                dir = eDirection.LEFT;
                 return;
-            }
-            dir = eDirection.RIGHT;
-            return;
-        }
-        if (keyCode == KEY_CUTS[2][id]) {
-            if (dir == eDirection.DOWN) {
+            case "2":
+                if (dir == eDirection.UP) {
+                    return;
+                }
+                dir = eDirection.DOWN;
                 return;
-            }
-            dir = eDirection.UP;
-            return;
-        }
-        if (keyCode == KEY_CUTS[3][id]) {
-            if (dir == eDirection.UP) {
+            case "6":
+                if (dir == eDirection.LEFT) {
+                    return;
+                }
+                dir = eDirection.RIGHT;
                 return;
-            }
-            dir = eDirection.DOWN;
-            return;
+            default:
+                return;
         }
     }
 

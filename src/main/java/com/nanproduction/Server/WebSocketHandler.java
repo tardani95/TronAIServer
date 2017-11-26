@@ -62,7 +62,7 @@ public class WebSocketHandler extends BaseWebSocketHandler {
             } else {
                 System.out.println(player.getId() + ": " + message/*+" time:"+ System.currentTimeMillis()%10000*/);
                 //Game.getInstance().addKeyCode(message);
-                player.setKeyCode(KeyCode.valueOf(message));
+                player.setKeyCode(message);
                 //}
                 //connection.send("The server has received the following message:"+ message);
             }
