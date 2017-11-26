@@ -12,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import javax.swing.*;
+import java.util.Collection;
 import java.util.List;
 import java.awt.event.KeyListener;
 import org.webbitserver.WebServer;
@@ -47,6 +48,9 @@ public class MainWindowController {
         gc=canvas.getGraphicsContext2D();
         stateText.setText("PLAYING");
 
+        game=Game.getInstance();
+        game.init(this);
+
         WebServer webServer = WebServers.createWebServer(8090);
         webServer.add(new StaticFileHandler("src/main/resources/static"));
         webServer.add("/websocket", new WebSocketHandler());
@@ -54,8 +58,7 @@ public class MainWindowController {
 
         initWindow();
         drawBase();
-        game=Game.getInstance();
-        game.init(this);
+
 //        canvas.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 //            @Override
 //            public void handle(KeyEvent event) {
@@ -66,7 +69,7 @@ public class MainWindowController {
 
     }
 
-    public void drawPlayers()
+    public void drawPlayers(Collection<Player> playerList)
     {
         gc.clearRect(0, 0, Game.MAP_SIZE_X*CELL_SIZE, Game.MAP_SIZE_Y*CELL_SIZE);
         drawBase();
@@ -74,7 +77,7 @@ public class MainWindowController {
         gc.setFill(Color.RED); //achivemenet
         gc.fillRect(CELL_SIZE * game.getAchievement().getX(), CELL_SIZE * game.getAchievement().getY(), CELL_SIZE, CELL_SIZE);
 
-        for(Player player: game.getPlayers()) {
+        for(Player player: playerList) {
             gc.setFill(player.getColor()); //playerHead
             gc.fillRect(CELL_SIZE * player.getHead().getX(), CELL_SIZE * player.getHead().getY(), CELL_SIZE, CELL_SIZE); //Fill the Head
 
@@ -95,7 +98,7 @@ public class MainWindowController {
 
     }
 
-    public void setScore(List<Player> playerList){
+    public void setScore(Collection<Player> playerList){
         StringBuilder stringBuilder=new StringBuilder();
         for(Player player: playerList){
             stringBuilder.append(player.getId()+"\t"+player.getScore()+"\n");

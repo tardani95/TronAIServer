@@ -23,6 +23,7 @@ public class Player {
 
     private int id;
     private boolean gameOver;
+    private volatile boolean ready;
 
     public Color getColor() {
         return color;
@@ -41,6 +42,9 @@ public class Player {
     }
 
 
+    public boolean isReady() {
+        return ready;
+    }
 
     public void setColor(Color color) {
         this.color = color;
@@ -52,6 +56,10 @@ public class Player {
 
     public Point getHead() {
         return head;
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
     }
 
     public List<Point> getTail() {
@@ -71,6 +79,9 @@ public class Player {
 
         tail = new ArrayList<>();
         dir = eDirection.STOP;
+
+        color=Game.COLORS[id];
+        ready=false;
 
         score = 0;
     }

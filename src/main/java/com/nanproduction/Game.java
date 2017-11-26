@@ -4,21 +4,21 @@ package com.nanproduction;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
+import org.webbitserver.WebSocketConnection;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Game extends Thread {
 
     public static final int MAP_SIZE_X = 50;
     public static final int MAP_SIZE_Y = 35;
     private static Game instance = new Game();
-    private static final int NUM_OF_PLAYERS = 4;
-    private static final Color[] COLORS = new Color[]{Color.BLUE, Color.GREEN, Color.YELLOW, Color.BROWN};
+    //private static final int NUM_OF_PLAYERS = 4;
+    public static final Color[] COLORS = new Color[]{Color.BLUE, Color.GREEN, Color.YELLOW, Color.BROWN, Color.BLACK, Color.CYAN, Color.BEIGE};
+    private GameState gameState;
 
-    private List<Player> players;
+    private static Map<WebSocketConnection,Player> players = new ConcurrentHashMap<>();
     private Achievement achievement;
 
     synchronized public void addKeyEvent(KeyEvent keyEvent) {
@@ -33,7 +33,7 @@ public class Game extends Thread {
         }
     }
 
-    synchronized public void addKeyCode(String key) {
+    /*synchronized public void addKeyCode(String key) {
         KeyCode keyCode = KeyCode.valueOf(key);
         for (int i = 0; i < players.size(); i++) {
             for (int j = 0; j < 4; j++) {
@@ -43,7 +43,7 @@ public class Game extends Thread {
                 }
             }
         }
-    }
+    }*/
 
 
     public Achievement getAchievement() {
@@ -57,8 +57,13 @@ public class Game extends Thread {
     private Game() {
     }
 
+    public GameState getGameState() {
+        return gameState;
+    }
+
     public static Game getInstance() {
         return instance;
+
     }
 
     public void setAchievement(Achievement achievement) {
@@ -73,16 +78,32 @@ public class Game extends Thread {
                 freeCoords.add(new Point(i, j));
             }
         }
-        players = new ArrayList<>();
-        for (int i = 0; i < NUM_OF_PLAYERS; i++) {
-            players.add(new Player(getRandFreeCoord(), i));
-            players.get(i).setColor(COLORS[i]);
-        }
+
         achievement = new Achievement(getRandFreeCoord());
-
-
+        gameState=GameState.WAITING_FOR_PLAYERS;
         start();
     }
+
+    public void addNewPlayer(WebSocketConnection connection){
+        Player player=new Player(getRandFreeCoord(), players.size());
+        players.put(connection,player);
+    }
+
+    public void removePlayer(WebSocketConnection connection){
+        players.remove(connection);
+    }
+
+    public Player getPlayer(WebSocketConnection connection){
+        return players.get(connection);
+    }
+
+    public int getNumOfPlayers(){return players.size();}
+
+   /* public void initPlayer(){
+        for (int i = 0; i < players.size(); i++) {
+            players.add(new Player(getRandFreeCoord(), i));
+        }
+    }*/
 
 
     public Point getRandFreeCoord() {
@@ -93,37 +114,56 @@ public class Game extends Thread {
         return point;
     }
 
-    public List<Player> getPlayers() {
+    /*public List<Player> getPlayers() {
         return players;
-    }
+    }*/
 
     private void movePlayers() {
-        for (Player player : players) {
+        for (Player player : players.values()) {
             player.move();
         }
     }
 
+    private boolean readyToPlay(){
+        for(Player player:players.values() ){
+            if(!player.isReady()){return false;}
+        }
+        return true;
+    }
+
     public void run() {
+
+        while (!readyToPlay() || players.size()<2){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            controller.drawPlayers(players.values());
+        }
+
+        gameState=GameState.PLAYING;
+
         while (players.size() > 1) {
-            controller.drawPlayers();
-            for (Player player : players) {
+            controller.drawPlayers(players.values());
+            for (Player player : players.values()) {
                 player.stepPlayer();
             }
             movePlayers();
-            for (int i = 0; i < players.size(); i++) {
-                for (int j = 0; j < players.size(); j++) {
-                    if (i == j) {
+            for (Player player1:players.values()) {
+                for (Player player2:players.values()) {
+                    if (player1.getId()==player2.getId()) {
                         continue;
                     }
 
-                    players.get(i).collisionDetection(players.get(j));
+                    player1.collisionDetection(player2);
                 }
             }
-            for (Iterator<Player> iter = players.iterator(); iter.hasNext(); ) {
-                Player player = iter.next();
+            for (Map.Entry<WebSocketConnection,Player> entry:players.entrySet()) {
+                Player player = entry.getValue();
                 if (player.isGameOver()) {
                     player.deletePlayer(this);
-                    iter.remove();
+                    players.remove(entry.getKey());
                     //players.remove(player);
                 }
             }
@@ -134,7 +174,7 @@ public class Game extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            controller.setScore(players);
+            controller.setScore(players.values());
         }
         controller.endingGame();
         stop();
