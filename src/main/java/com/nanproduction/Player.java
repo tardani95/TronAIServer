@@ -9,68 +9,69 @@ import java.util.List;
 import static javafx.scene.input.KeyCode.*;
 
 
-
 public class Player {
-
-
-
     public static final KeyCode[][] KEY_CUTS = {
             {A, LEFT, J, NUMPAD4},
-            {D, RIGHT,L, NUMPAD6},
-            {W, UP,I, NUMPAD8},
-            {S, DOWN,K, NUMPAD5}
+            {D, RIGHT, L, NUMPAD6},
+            {W, UP, I, NUMPAD8},
+            {S, DOWN, K, NUMPAD5}
     };
 
     private int id;
     private boolean gameOver;
     private volatile boolean ready;
-
-    public Color getColor() {
-        return color;
-    }
-
     private Point head;
     private List<Point> tail;
     private eDirection dir;
     private int score;
-    private Color color;
+    private String color;
     private KeyCode keyCode;
 
-
-    public void setKeyCode(KeyCode keyCode) {
-        this.keyCode = keyCode;
+    public String getColor() {
+        return color;
+    }
+    public int getScore() {
+        return score;
     }
 
-
-    public boolean isReady() {
-        return ready;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
-    public boolean isGameOver() {
-        return gameOver;
-    }
-
-    public Point getHead() {
-        return head;
-    }
-
-    public void setReady(boolean ready) {
-        this.ready = ready;
-    }
-
-    public List<Point> getTail() {
-        return tail;
+    public int getId() {
+        return id;
     }
 
     public eDirection getDir() {
         return dir;
     }
 
-    Player(Point head, int id) {
+    public Point getHead() {
+        return head;
+    }
+
+    public List<Point> getTail() {
+        return tail;
+    }
+
+    public boolean isReady() {
+        return ready;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setKeyCode(KeyCode keyCode) {
+        this.keyCode = keyCode;
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
+    }
+
+
+    public Player(Point head, int id) {
         gameOver = false;
         this.id = id;
 
@@ -80,62 +81,44 @@ public class Player {
         tail = new ArrayList<>();
         dir = eDirection.STOP;
 
-        color=Game.COLORS[id];
-        ready=false;
+        color = Game.COLORS[id];
+        ready = false;
 
         score = 0;
     }
 
     synchronized public void stepPlayer() {
         if (keyCode == null) return;
-        if(keyCode==KEY_CUTS[0][id]){
-            if(dir== eDirection.RIGHT){return;}
+        if (keyCode == KEY_CUTS[0][id]) {
+            if (dir == eDirection.RIGHT) {
+                return;
+            }
             dir = eDirection.LEFT;
             return;
         }
-        if(keyCode==KEY_CUTS[1][id]){
-            if(dir== eDirection.LEFT){return;}
+        if (keyCode == KEY_CUTS[1][id]) {
+            if (dir == eDirection.LEFT) {
+                return;
+            }
             dir = eDirection.RIGHT;
             return;
         }
-        if(keyCode==KEY_CUTS[2][id]){
-            if(dir== eDirection.DOWN){return;}
+        if (keyCode == KEY_CUTS[2][id]) {
+            if (dir == eDirection.DOWN) {
+                return;
+            }
             dir = eDirection.UP;
             return;
         }
-        if(keyCode==KEY_CUTS[3][id]){
-            if(dir== eDirection.UP){return;}
+        if (keyCode == KEY_CUTS[3][id]) {
+            if (dir == eDirection.UP) {
+                return;
+            }
             dir = eDirection.DOWN;
             return;
         }
-//        switch (keyCode) {
-//            case KEY_CUTS[id][0]:
-//                dir = eDirection.LEFT;
-//                break;
-//            case D:
-//                dir = eDirection.RIGHT;
-//                break;
-//            case W:
-//                dir = eDirection.UP;
-//                break;
-//            case S:
-//                dir = eDirection.DOWN;
-//                break;
-//            case X:
-//                gameOver = true;// kilép
-//                break;
-//            default:
-//                break;
-//        }
     }
 
-    public int getScore() {
-        return score;
-    }
-
-    public int getId() {
-        return id;
-    }
 
     void move() {
         Game game = Game.getInstance();

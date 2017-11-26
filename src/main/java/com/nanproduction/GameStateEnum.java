@@ -1,5 +1,5 @@
 package com.nanproduction;
 
-public enum GameState {
+public enum GameStateEnum {
     WAITING_FOR_PLAYERS, PLAYING, ENDING
 }

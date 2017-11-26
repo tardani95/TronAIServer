@@ -21,9 +21,8 @@ import org.webbitserver.handler.StaticFileHandler;
 
 public class MainWindowController {
 
-    public static final int CELL_SIZE = 20;
-    public static final double BODY_SCALE = 0.5;
 
+/*
     private Game game;
 
 
@@ -48,16 +47,7 @@ public class MainWindowController {
         gc=canvas.getGraphicsContext2D();
         stateText.setText("PLAYING");
 
-        game=Game.getInstance();
-        game.init(this);
 
-        WebServer webServer = WebServers.createWebServer(8090);
-        webServer.add(new StaticFileHandler("src/main/resources/static"));
-        webServer.add("/websocket", new WebSocketHandler());
-        webServer.start();
-
-        initWindow();
-        drawBase();
 
 //        canvas.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 //            @Override
@@ -125,11 +115,12 @@ public class MainWindowController {
         for(int i=0;i<Game.MAP_SIZE_X;i++){
             gc.strokeLine(i*CELL_SIZE,0,i*CELL_SIZE,canvas.getHeight());
         }
+
         for(int j=0; j<Game.MAP_SIZE_Y; j++){
             gc.strokeLine(0,j* CELL_SIZE,canvas.getWidth(),j*CELL_SIZE);
         }
     }
 
 
-
+*/
 }

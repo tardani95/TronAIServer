@@ -5,33 +5,26 @@ import javafx.scene.input.KeyCode;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class WebSocketHandler extends BaseWebSocketHandler {
 
     private Game game= Game.getInstance();
 
 
+
     @Override
     public void onOpen(WebSocketConnection connection) {
-        if(game.getGameState()== GameState.WAITING_FOR_PLAYERS) {
-            game.addNewPlayer(connection);
-            connection.send("Welcome to the Arena!\n"
-                    + "Total No. of racers: " + game.getNumOfPlayers() + ".");
-            System.out.println("Someone connected. Connections: "
-                    + game.getNumOfPlayers());
-        }
-        else{
-            connection.send("The game has been started yet, wait until it will be ended!");
-        }
-
-
     }
 
     @Override
     public void onClose(WebSocketConnection connection) {
-        game.removePlayer(connection);
+        Player player=game.getPlayer(connection);
+        if(player==null){
+            game.removeWatcher(connection);
+        }
+        else {
+            game.removePlayer(connection);
+        }
+
         System.out.println("SomeOne Disconnected. Connections: "
                 + game.getNumOfPlayers());
     }
@@ -40,13 +33,28 @@ public class WebSocketHandler extends BaseWebSocketHandler {
     public void onMessage(WebSocketConnection connection, String message) {
         //if the value of the players map is null, then adds the message, otherwise do nothing - first message must be the player name
         //players.putIfAbsent(connection, message);
+        if(message.equals("GUEST")){
+            game.addWatcher(connection);
+            System.out.println("New Watcher");
+            return;
+        }
 
         Player player  = game.getPlayer(connection);
 
         if(player == null){
-            connection.send("Your game is ended!");
+            if(game.getGameState()== GameStateEnum.WAITING_FOR_PLAYERS) {
+                game.addNewPlayer(connection);
+                connection.send("Welcome to the Arena!\n"
+                        + "Total No. of racers: " + game.getNumOfPlayers() + ".");
+                System.out.println("Someone connected. Connections: "
+                        + game.getNumOfPlayers());
+            }
+            else{
+                connection.send("Your game is ended!");
+            }
+
         }else {
-            if (game.getGameState() == GameState.WAITING_FOR_PLAYERS) {
+            if (game.getGameState() == GameStateEnum.WAITING_FOR_PLAYERS) {
                 if (message.equals("READY")) {
                     player.setReady(true);
                 }
