@@ -1,6 +1,7 @@
 package com.nanproduction;
 
 import javafx.event.EventHandler;
+import com.nanproduction.Server.WebSocketHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -13,8 +14,11 @@ import javafx.scene.text.Text;
 import javax.swing.*;
 import java.util.List;
 import java.awt.event.KeyListener;
+import org.webbitserver.WebServer;
+import org.webbitserver.WebServers;
+import org.webbitserver.handler.StaticFileHandler;
 
-public class MainWindowController  {
+public class MainWindowController {
 
     public static final int CELL_SIZE = 20;
     public static final double BODY_SCALE = 0.5;
@@ -35,7 +39,6 @@ public class MainWindowController  {
 
     public MainWindowController() {
         System.out.println("MainWindowController() called");
-
     }
 
     @FXML
@@ -44,6 +47,10 @@ public class MainWindowController  {
         gc=canvas.getGraphicsContext2D();
         stateText.setText("PLAYING");
 
+        WebServer webServer = WebServers.createWebServer(8090);
+        webServer.add(new StaticFileHandler("src/main/resources/static"));
+        webServer.add("/websocket", new WebSocketHandler());
+        webServer.start();
 
         initWindow();
         drawBase();
@@ -55,6 +62,7 @@ public class MainWindowController  {
 //                System.out.printf("press");
 //            }
 //        });
+
 
     }
 
