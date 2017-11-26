@@ -28,7 +28,7 @@ public class MainWindowController {
 //        server.stop();
 
         WebServer webServer = WebServers.createWebServer(8090);
-        webServer.add(new StaticFileHandler("/static-files"));
+        webServer.add(new StaticFileHandler("src/main/resources/static"));
         webServer.add("/websocket", new WebSocketHandler());
         webServer.start();
     }

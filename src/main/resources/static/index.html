@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>HTML5 WebSocket-Client</title>
+</head>
+
+<body onload="javascript:subscribeToWebSocket()">
+    <input id="userInput" type="text">
+    <button onclick="javascript:sendMessage()">Chat</button>
+    <div id="message"></div>
+    <canvas id="myCanvas" width="200" height="200" style="border:1px solid #000000;"></canvas>
+
+    <script>
+        var socket;
+
+        var c = document.getElementById('myCanvas');
+        var ctx = c.getContext("2d");
+
+        ctx.moveTo(0, 0);
+        ctx.lineTo(200, 100);
+        ctx.stroke();
+
+        function sendMessage() {
+            var message = document.getElementById('userInput').value;
+            socket.send(message);
+        }
+
+        function showMessage(text) {
+            document.getElementById('message').innerHTML = text;
+        }
+
+        function subscribeToWebSocket() {
+            if ('WebSocket' in window) {
+                socket = new WebSocket('ws://localhost:8090/websocket');
+                socket.onopen = function() {
+                    showMessage('Connected to WebSocket.');
+                    socket.send('watcher');
+                };
+                socket.onmessage = function(msg) {
+                    showMessage(msg.data);
+                };
+                socket.onerror = function(msg) {
+                    showMessage('Sorry but there was an error.');
+                };
+                socket.onclose = function() {
+                    showMessage('Server offline.');
+                };
+            } else {
+                showMessage('Your browser does not support HTML5 WebSockets.');
+            }
+        }
+    </script>
+
+</body>
+
+</html>
