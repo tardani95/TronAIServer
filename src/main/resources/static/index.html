@@ -113,7 +113,7 @@
 
     function subscribeToWebSocket() {
         if ('WebSocket' in window) {
-            socket = new WebSocket('ws://192.168.137.1:8090/websocket');
+            socket = new WebSocket('ws://172.19.74.149:8090/websocket');
             socket.onopen = function () {
                 showMessage('Connected to WebSocket as GUEST');
                 socket.send('GUEST');
