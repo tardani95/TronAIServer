@@ -17,6 +17,7 @@ public class Player {
     };
 
     private int id;
+    private String name;
     private boolean gameOver;
     private volatile boolean ready;
     private Point head;
@@ -70,6 +71,12 @@ public class Player {
         this.ready = ready;
     }
 
+
+    public Player(Point head, int id, String color, String playerName){
+        this(head,id);
+        this.color = color;
+        this.name = playerName;
+    }
 
     public Player(Point head, int id) {
         gameOver = false;
