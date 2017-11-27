@@ -2,60 +2,137 @@
 <html>
 
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
   <title>TronAI WebGUI</title>
 </head>
 
 <body onload="javascript:subscribeToWebSocket()">
-  <input id="userInput" type="text">
-  <button onclick="javascript:sendMessage()">Chat</button>
-  <div id="message"></div>
-  <canvas id="myCanvas" width="1000" height="700" style="border:1px solid #000000;"></canvas>
+<!--<body>-->
+<input id="userInput" type="text">
+<button onclick="javascript:sendMessage()">Chat</button>
+<div id="message"></div>
+<canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000;"></canvas>
 
-  <script>
+<script>
     var socket;
+    var canvas = document.getElementById('myCanvas');
+    var gc = canvas.getContext("2d");
+    var CELL_SIZE = 20;
+    var MAP_SIZE_X = 50;
+    var MAP_SIZE_Y = 35;
+    var BODY_SCALE = 0.5;
 
-    var c = document.getElementById('myCanvas');
-    var ctx = c.getContext("2d");
+    initWindow();
 
-    drawLine();
+    //drawBaseMap();
 
-    function drawLine(){
+    function initWindow() {
+        canvas.width = CELL_SIZE * MAP_SIZE_X;
+        canvas.height = CELL_SIZE * MAP_SIZE_Y;
+    }
+
+    function drawBaseMap() {
+        gc.beginPath();
+        gc.lineWidth = 0.5;
+        for (i = 1; i < MAP_SIZE_X; i++) {
+            gc.moveTo(i * CELL_SIZE, 0);
+            gc.lineTo(i * CELL_SIZE, canvas.height);
+        }
+
+        for (j = 1; j < MAP_SIZE_Y; j++) {
+            gc.moveTo(0, j * CELL_SIZE);
+            gc.lineTo(canvas.width, j * CELL_SIZE);
+        }
+        gc.stroke();
+    }
+
+    function drawPlayers(gameData) {
+        gc.clearRect(0, 0, canvas.width, canvas.height);
+        drawBaseMap();
+        //draw achievement
+        gc.fillStyle = "#FF0000";
+        gc.fillRect(CELL_SIZE * gameData.achievements.coord.x, CELL_SIZE * gameData.achievements.coord.y, CELL_SIZE, CELL_SIZE);
+
+        //gc.beginPath();
+        for (player of gameData.players) {
+            gc.beginPath();
+            gc.fillStyle = player.color;
+            gc.fillRect(CELL_SIZE * player.head.x, CELL_SIZE * player.head.y, CELL_SIZE, CELL_SIZE);
+            gc.strokeStyle = player.color;
+            gc.lineWidth = CELL_SIZE * BODY_SCALE;
+            if (player.tail.length != 0) {
+                //draw neck
+                gc.moveTo(CELL_SIZE * (player.head.x + 0.5),
+                    CELL_SIZE * (player.head.y + 0.5));
+                gc.lineTo(CELL_SIZE * (player.tail[0].x + 0.5),
+                    CELL_SIZE * (player.tail[0].y + 0.5));
+
+                //draw body
+                for(i = 1;i<player.tail.length;i++){
+                    strokeLine(CELL_SIZE * (player.tail[i - 1].x + 0.5),
+                        CELL_SIZE * (player.tail[i - 1].y + 0.5),
+                        CELL_SIZE * (player.tail[i].x + 0.5),
+                        CELL_SIZE * (player.tail[i].y + 0.5)); //draw body
+                }
+            }
+            gc.stroke();
+        }
+        //gc.stroke();
+        gc.strokeStyle = "#000000";
+    }
+
+    function strokeLine(x,y,x1,y1) {
+        gc.moveTo(x,y);
+        gc.lineTo(x1,y1);
+    }
+
+    function drawLine() {
         ctx.moveTo(0, 0);
         ctx.lineTo(200, 100);
         ctx.stroke();
     }
 
+    var text1 = '{ "employees" : [' +
+        '{ "firstName":"John" , "lastName":"Doe" },' +
+        '{ "firstName":"Anna" , "lastName":"Smith" },' +
+        '{ "firstName":"Peter" , "lastName":"Jones" } ]}';
+
+    function refreshGUI(obj) {
+        //document.getElementById('message').innerHTML = gameData.achievements.coord.x;
+        drawPlayers(obj);
+    }
+
     function sendMessage() {
-      var message = document.getElementById('userInput').value;
-      socket.send(message);
+        var message = document.getElementById('userInput').value;
+        socket.send(message);
     }
 
     function showMessage(text) {
-      document.getElementById('message').innerHTML = text;
+        document.getElementById('message').innerHTML = text;
     }
 
     function subscribeToWebSocket() {
-      if ('WebSocket' in window) {
-        socket = new WebSocket('ws://192.168.137.109:8090/websocket');
-        socket.onopen = function() {
-          showMessage('Connected to WebSocket.');
-          socket.send('watcher');
-        };
-        socket.onmessage = function(msg) {
-          showMessage(msg.data);
-        };
-        socket.onerror = function(msg) {
-          showMessage('Sorry but there was an error.');
-        };
-        socket.onclose = function() {
-          showMessage('Server offline.');
-        };
-      } else {
-        showMessage('Your browser does not support HTML5 WebSockets.');
-      }
+        if ('WebSocket' in window) {
+            socket = new WebSocket('ws://192.168.137.1:8090/websocket');
+            socket.onopen = function () {
+                showMessage('Connected to WebSocket as GUEST');
+                socket.send('GUEST');
+            };
+            socket.onmessage = function (msg) {
+                //showMessage(msg.data);
+                refreshGUI(JSON.parse(msg.data));
+            };
+            socket.onerror = function (msg) {
+                showMessage('Sorry but there was an error.');
+            };
+            socket.onclose = function () {
+                showMessage('Server offline.');
+            };
+        } else {
+            showMessage('Your browser does not support HTML5 WebSockets.');
+        }
     }
-  </script>
+</script>
 
 </body>
 

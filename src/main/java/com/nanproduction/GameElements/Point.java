@@ -1,4 +1,4 @@
-package com.nanproduction;
+package com.nanproduction.GameElements;
 
 import java.util.Random;
 

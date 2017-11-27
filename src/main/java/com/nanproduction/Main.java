@@ -1,51 +1,49 @@
 package com.nanproduction;
 
-import javafx.application.Application;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
-import javafx.stage.Stage;
+import com.nanproduction.GameElements.Game;
+import com.nanproduction.GameElements.GameStateEnum;
+import com.nanproduction.Server.WebSocketHandler;
+import org.webbitserver.WebServer;
+import org.webbitserver.WebServers;
+import org.webbitserver.handler.StaticFileHandler;
 
-public class Main extends Application{
+public class Main{
 
-    private static final int SCREEN_SIZE_X = 1280;
-    private static final int SCREEN_SIZE_Y = 750;
+    public static final int CELL_SIZE = 20;
+    public static final double BODY_SCALE = 0.5;
 
-    private Scene scene;
 
-    private Game game;
+    private static Game game;
 
     public static void main(String[] args) {
         System.out.println("main()");
-        Application.launch(args);
-    }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
+        WebServer webServer = WebServers.createWebServer(8090);
+        webServer.add(new StaticFileHandler("src/main/resources/static"));
+        webServer.add("/websocket", new WebSocketHandler());
+        webServer.start();
+
+
         game=Game.getInstance();
-        System.out.println("start()");
-        Parent root = FXMLLoader.load(getClass().getResource("/mainWindow.fxml"));
-        primaryStage.setTitle("TronAIServerGUI");
-        scene=new Scene(root, SCREEN_SIZE_X, SCREEN_SIZE_Y);
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                //System.out.printf("PRESS");
-                game.addKeyEvent(event);
+        game.init();
+
+        while (game.getGameState()!= GameStateEnum.ENDING){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        });
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        webServer.stop();
     }
 
-    @Override
-    public void stop() throws Exception {
-        System.out.println("stop()");
-        //myServer.stop();
-        super.stop();
-    }
+
 
 
 }
