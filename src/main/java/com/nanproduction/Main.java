@@ -32,6 +32,7 @@ public class Main{
 
         stopServer();
         System.out.println("Application stopped.");
+        System.exit(0);
     }
 
     public static void startServer(){
@@ -52,7 +53,7 @@ public class Main{
     public static void stopServer(){
         System.err.println("Stopping webSocketServer...");
         if(webServer != null){
-            game.stop();
+            game.stopThread();
             webServer.stop();
             System.out.println("WebSocketServer stopped.");
             return;
