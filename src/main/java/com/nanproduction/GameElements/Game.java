@@ -17,10 +17,9 @@ public class Game extends Thread {
     public static final String[] COLORS = new String[]{"#000099", "#339933", "#ffcc00", "#663300", "#000000", "#33ccff", "#ff9966"};
     private GameStateEnum gameState;
 
-    private static Map<WebSocketConnection,Player> players = new ConcurrentHashMap<>();
-    private static List<WebSocketConnection> watchers=new ArrayList<>();
+    private static Map<WebSocketConnection, Player> players = new ConcurrentHashMap<>();
+    private static List<WebSocketConnection> watchers = new ArrayList<>();
     private Achievement achievement;
-
 
 
     public Achievement getAchievement() {
@@ -47,6 +46,7 @@ public class Game extends Thread {
     }
 
     public void init() {
+        players = new ConcurrentHashMap<>();
         freeCoords = new ArrayList<>();
         for (int i = 0; i < MAP_SIZE_X; i++) {
             for (int j = 0; j < MAP_SIZE_Y; j++) {
@@ -55,32 +55,34 @@ public class Game extends Thread {
         }
 
         achievement = new Achievement(getRandFreeCoord());
-        gameState= GameStateEnum.WAITING_FOR_PLAYERS;
+        gameState = GameStateEnum.WAITING_FOR_PLAYERS;
         start();
     }
 
-    public void addNewPlayer(WebSocketConnection connection){
-        Player player=new Player(getRandFreeCoord(), players.size());
-        players.put(connection,player);
+    public void addNewPlayer(WebSocketConnection connection) {
+        Player player = new Player(getRandFreeCoord(), players.size());
+        players.put(connection, player);
     }
 
-    public void addWatcher(WebSocketConnection connection){
+    public void addWatcher(WebSocketConnection connection) {
         watchers.add(connection);
     }
 
-    public void removeWatcher(WebSocketConnection connection){
+    public void removeWatcher(WebSocketConnection connection) {
         watchers.remove(connection);
     }
 
-    public void removePlayer(WebSocketConnection connection){
+    public void removePlayer(WebSocketConnection connection) {
         players.remove(connection);
     }
 
-    public Player getPlayer(WebSocketConnection connection){
+    public Player getPlayer(WebSocketConnection connection) {
         return players.get(connection);
     }
 
-    public int getNumOfPlayers(){return players.size();}
+    public int getNumOfPlayers() {
+        return players.size();
+    }
 
    /* public void initPlayer(){
         for (int i = 0; i < players.size(); i++) {
@@ -107,26 +109,31 @@ public class Game extends Thread {
         }
     }
 
-    private boolean readyToPlay(){
-        for(Player player:players.values() ){
-            if(!player.isReady()){return false;}
+    private boolean readyToPlay() {
+        for (Player player : players.values()) {
+            if (!player.isReady()) {
+                return false;
+            }
         }
         return true;
     }
 
-    private void refreshGUI(){
-        JsonObject json=new JsonObject();
+    private void refreshGUI() {
+        JsonObject json = new JsonObject();
         json.add("players", new Gson().toJsonTree(players.values()));
         json.add("achievements", new Gson().toJsonTree(achievement));
-        String jsonString=new Gson().toJson(json);
-        for(WebSocketConnection watcher:watchers){
+        String jsonString = new Gson().toJson(json);
+        for (WebSocketConnection watcher : watchers) {
             watcher.send(jsonString);
+        }
+        for(WebSocketConnection player : players.keySet()){
+            player.send(jsonString);
         }
     }
 
     public void run() {
 
-        while (!readyToPlay() || players.size()<2){
+        while (!readyToPlay() || players.size() < 2) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -136,7 +143,7 @@ public class Game extends Thread {
             //controller.drawPlayers(players.values());
         }
 
-        gameState= GameStateEnum.PLAYING;
+        gameState = GameStateEnum.PLAYING;
 
         while (players.size() > 1) {
             refreshGUI();
@@ -145,16 +152,16 @@ public class Game extends Thread {
                 player.stepPlayer();
             }
             movePlayers();
-            for (Player player1:players.values()) {
-                for (Player player2:players.values()) {
-                    if (player1.getId()==player2.getId()) {
+            for (Player player1 : players.values()) {
+                for (Player player2 : players.values()) {
+                    if (player1.getId() == player2.getId()) {
                         continue;
                     }
 
                     player1.collisionDetection(player2);
                 }
             }
-            for (Map.Entry<WebSocketConnection,Player> entry:players.entrySet()) {
+            for (Map.Entry<WebSocketConnection, Player> entry : players.entrySet()) {
                 Player player = entry.getValue();
                 if (player.isGameOver()) {
                     player.deletePlayer(this);
@@ -172,7 +179,7 @@ public class Game extends Thread {
             //controller.setScore(players.values());
         }
 
-        gameState= GameStateEnum.ENDING;
+        gameState = GameStateEnum.ENDING;
         refreshGUI();
         //controller.endingGame();
         stop();
