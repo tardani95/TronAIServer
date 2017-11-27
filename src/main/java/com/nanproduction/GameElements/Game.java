@@ -1,11 +1,8 @@
-package com.nanproduction;
+package com.nanproduction.GameElements;
 
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
 import org.webbitserver.WebSocketConnection;
 
 import java.util.*;

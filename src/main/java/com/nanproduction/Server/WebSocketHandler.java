@@ -1,7 +1,8 @@
 package com.nanproduction.Server;
 
-import com.nanproduction.*;
-import javafx.scene.input.KeyCode;
+import com.nanproduction.GameElements.Game;
+import com.nanproduction.GameElements.GameStateEnum;
+import com.nanproduction.GameElements.Player;
 import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 

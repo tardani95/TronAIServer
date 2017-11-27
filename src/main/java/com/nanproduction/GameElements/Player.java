@@ -1,7 +1,6 @@
-package com.nanproduction;
+package com.nanproduction.GameElements;
 
 import javafx.scene.input.KeyCode;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
