@@ -31,6 +31,50 @@
     .w3-bar .w3-button {
         padding: 16px;
     }
+
+    /*TODO - slide in*/
+    /*#myCanvas{*/
+        /*height: 0;*/
+        /*overflow: hidden;*/
+        /*background: red;*/
+        /*-moz-animation: slide 1s ease 3.5s forwards;*/
+        /*-webkit-animation: slide 1s ease 3.5s forwards;*/
+        /*-o-animation: slide 1s ease 3.5s forwards;*/
+        /*-ms-animation: slide 1s ease 3.5s forwards;*/
+        /*animation: slide 1s ease 3.5s forwards;*/
+    /*}*/
+
+    /*@-moz-keyframes slide !* Firefox *!*/
+    /*{*/
+        /*from {height: 0;}*/
+        /*to {height: 300px;}*/
+    /*}*/
+
+    /*@-webkit-keyframes slide !* Safari and Chrome *!*/
+    /*{*/
+        /*from {height: 0;}*/
+        /*to {height: 300px;}*/
+    /*}*/
+
+    /*@-o-keyframes slide !* Opera *!*/
+    /*{*/
+        /*from {background: red;}*/
+        /*to {background: yellow;}*/
+    /*}*/
+
+    /*@-ms-keyframes slide !* IE10 *!*/
+    /*{*/
+        /*from {height: 0;}*/
+        /*to {height: 300px;}*/
+    /*}*/
+
+    /*@keyframes slide*/
+    /*{*/
+        /*from {height: 0;}*/
+        /*to {height: 300px;}*/
+    /*}*/
+
+
 </style>
 
 <body onload="javascript:subscribeToWebSocket()">
@@ -70,7 +114,7 @@
 <header class="bgimg-1 w3-display-container w3-grayscale-min" id="home">
     <div class="w3-display-center w3-text-white" align="center"style="padding-top:48px">
         <p align="center" ><canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000; display:none;"></canvas></p>
-        <span class="w3-jumbo w3-hide-small" id="message"></span><br>
+        <span class="w3-jumbo w3-hide-small" id="message">Connecting...</span><br>
         <span class="w3-xxlarge w3-hide-large w3-hide-medium">Start something that matters</span><br>
         <!--<span class="w3-large">Stop wasting valuable time with projects that just isn't you.</span>-->
         <!--<p><a href="#about" class="w3-button w3-white w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Learn more and start today</a></p>-->
