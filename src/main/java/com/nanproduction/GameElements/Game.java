@@ -82,6 +82,12 @@ public class Game {
     }
 
     public void removePlayer(WebSocketConnection connection) {
+        int playerId=players.get(connection).getId();
+        for(Player player:players.values()){
+            if(player.getId()>playerId){
+                player.decreaseId();
+            }
+        }
         players.remove(connection);
     }
 

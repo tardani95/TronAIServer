@@ -71,6 +71,8 @@ public class Player {
         this.ready = ready;
     }
 
+    public void decreaseId(){this.id--;}
+
 
     public Player(Point head, int id, String color, String playerName){
         this(head,id);
