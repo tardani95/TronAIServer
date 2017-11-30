@@ -5,16 +5,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.webbitserver.WebSocketConnection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Game{
+public class Game {
 
     public static final int MAP_SIZE_X = 50;
     public static final int MAP_SIZE_Y = 35;
     private static Game instance = new Game();
     //private static final int NUM_OF_PLAYERS = 4;
-    public static final String[] COLORS = new String[]{"#000099", "#339933", "#ffcc00", "#663300", "#000000", "#33ccff", "#ff9966"};
+    public static final String[] COLORS = new String[]{"#000099ff", "#339933ff", "#ffcc00ff", "#663300ff", "#000000ff", "#33ccffff", "#ff9966ff"};
     private GameStateEnum gameState;
     private List<Point> freeCoords;
 
@@ -61,8 +64,12 @@ public class Game{
         thread.start();
     }
 
-    public void addNewPlayer(WebSocketConnection connection) {
-        Player player = new Player(getRandFreeCoord(), players.size());
+    public void addNewPlayer(WebSocketConnection connection, String jsonString) {
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
+        String name = jsonObject.get("name").getAsString();
+        String color = jsonObject.get("color").getAsString();
+        Player player = new Player(getRandFreeCoord(), players.size(), color, name);
         players.put(connection, player);
     }
 
@@ -128,11 +135,10 @@ public class Game{
         for (WebSocketConnection watcher : watchers) {
             watcher.send(jsonString);
         }
-        for(WebSocketConnection player : players.keySet()){
+        for (WebSocketConnection player : players.keySet()) {
             player.send(jsonString);
         }
     }
-
 
 
     public void removeFreeCoord(Point point) {
@@ -147,7 +153,7 @@ public class Game{
         thread.stop();
     }
 
-    public class GameThread extends Thread{
+    public class GameThread extends Thread {
 
         @Override
         public void run() {

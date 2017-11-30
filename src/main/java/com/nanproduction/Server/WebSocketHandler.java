@@ -54,7 +54,8 @@ public class WebSocketHandler extends BaseWebSocketHandler {
 
         if (player == null) {
             if (game.getGameState() == GameStateEnum.WAITING_FOR_PLAYERS) {
-                game.addNewPlayer(connection);
+                game.addNewPlayer(connection,message);
+
                 connection.send("Welcome to the Arena!\n"
                         + "Total No. of racers: " + game.getNumOfPlayers() + ".");
                 System.out.println("Someone connected. Connections: "
