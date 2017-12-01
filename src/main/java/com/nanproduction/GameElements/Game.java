@@ -64,14 +64,14 @@ public class Game {
         JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
         String name = jsonObject.get("name").getAsString();
         String color = jsonObject.get("color").getAsString();
-        Player player = new Player(getRandFreeCoord(), numOfActivePlayers, color, name);
+        Player player = new Player(getRandFreeCoord(), connection.hashCode(), color, name);
         players.put(connection, player);
         numOfActivePlayers++;
     }
 
     synchronized public void readdNewPlayer(WebSocketConnection connection) {
         Player player=players.get(connection);
-        player.reinitPlayer(getRandFreeCoord(), numOfActivePlayers);
+        player.reinitPlayer(getRandFreeCoord(), connection.hashCode());
         player.setReady(true);
         players.put(connection,player);
         numOfActivePlayers++;

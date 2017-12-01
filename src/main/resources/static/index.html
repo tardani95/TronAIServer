@@ -32,7 +32,44 @@
         padding: 16px;
     }
 
-    /*TODO - slide in*/
+    canvas{
+        height: 0;
+        overflow: hidden;
+        width: 10em;
+        opacity: 0;
+        transform: rotateX(-90deg);
+        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+    }
+
+    canvas.show{
+        width :1000px;
+        height :700px;
+        opacity: 1;
+        transform: none;
+        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+    }
+
+
+    li {
+        list-style: none;
+        height: 0;
+        line-height: 2em;
+        margin: 0;
+        padding: 0 0.5em;
+        overflow: hidden;
+        width: 10em;
+        opacity: 0;
+        transform: rotateX(-90deg);
+        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+    }
+
+    li.show {
+        height: 3em;
+        margin: 2px 0;
+        opacity: 1;
+        transform: none;
+        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+    }
 
 
 
@@ -55,9 +92,9 @@
         </div>
         <!-- Hide right-floated links on small screens and replace them with a menu icon -->
 
-        <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">
-            <i class="fa fa-bars"></i>
-        </a>
+        <!--<a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">-->
+            <!--<i class="fa fa-bars"></i>-->
+        <!--</a>-->
     </div>
 </div>
 
@@ -75,8 +112,8 @@
 <header class="bgimg-1 w3-display-container w3-grayscale-min" id="home">
     <div class="w3-display-center w3-text-white" align="center">
         <div style="padding-top:70px">
-            <canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000; display:none; "></canvas>
-            <ul  id="scoreBoard" class="w3-ul w3-card-4" style="width: 400px;display:inline-block; vertical-align: top; padding-top: 40px"></ul>
+            <canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000;"></canvas>
+            <ul  id="scoreBoard" class="w3-ul" style="width: 400px;display:inline-block; vertical-align: top; padding-top: 40px;"></ul>
         </div>
         <span class="w3-jumbo w3-hide-small" id="message">Connecting...</span><br>
         <span class="w3-xxlarge w3-hide-large w3-hide-medium">Start something that matters</span><br>
@@ -107,7 +144,8 @@
     var MAP_SIZE_Y = 35;
     var BODY_SCALE = 0.5;
     var scoreBoard = document.getElementById('scoreBoard');
-    var numOfPlayers = 0;
+    //var numOfPlayers = 0;
+    var listIds = [];
     initWindow();
 
 
@@ -134,14 +172,25 @@
         gc.stroke();
     }
 
-    function removePlayer(index){
-        var pid='player'+index;
-        var item = document.getElementById(pid);
-        scoreBoard.removeChild(item);
+    function removePlayer(id){
+        var index = listIds.indexOf(id);
+        listIds.splice(index,1);
+        var item = document.getElementById(id);
+        // closePlayerItem(item);
+        item.className = "";
+        closePlayerItem(item);
     }
+
+    function closePlayerItem(item){
+        setTimeout(function() {
+            scoreBoard.removeChild(item);
+        }, 100);
+    }
+
     function addNewPlayer(player) {
+        listIds.push(player.id);
         var listItem = document.createElement('li');
-        listItem.setAttribute('id', 'player'+player.id);
+        listItem.setAttribute('id', player.id);
         listItem.setAttribute('style',"background: "+player.color+"; alignment: left");
         listItem.setAttribute('class',"w3-bar");
 
@@ -155,7 +204,11 @@
         listItem.appendChild(playerName);
         listItem.appendChild(score);
         scoreBoard.appendChild(listItem);
+        setTimeout(function() {
+            listItem.className = listItem.className + " show";
+        }, 10);
     }
+
 
 
     function drawPlayers(gameData) {
@@ -163,22 +216,50 @@
         //draw achievement
         gc.fillStyle = "#FF0000";
         gc.fillRect(CELL_SIZE * gameData.achievements.coord.x, CELL_SIZE * gameData.achievements.coord.y, CELL_SIZE, CELL_SIZE);
-        var index = 0;
+        //var index = 0;
         //gc.beginPath();
+
+
+        //addNewPlayers
         for (player of gameData.players) {
-            if(Number(player.id)>Number(index)){
-                removePlayer(player.id);
-                numOfPlayers++;
-                index=player.id;
-            }
-            if(player.id>=numOfPlayers){
-                numOfPlayers=index+1;
+            var playerIndex = listIds.indexOf(player.id);
+            if(playerIndex<0){
                 addNewPlayer(player);
             }
+        }
+        //delete exited Players
+        for(listId of listIds){
+            var found=false;
+            for(player of gameData.players){
+                if(listId===player.id){
+                    found=true;
+                    break;
+                }
+            }
+            if(!found){
+                removePlayer(listId);
+            }
+        }
+
+        for (player of gameData.players) {
+
+
+            // if(Number(player.id)>Number(index)){
+            //     removePlayer(player.id);
+            //     //numOfPlayers--;
+            //     index=player.id;
+            // }
+            // if(player.id>=numOfPlayers){
+            //     numOfPlayers=index+1;
+            //     addNewPlayer(player);
+            // }
 
             if(player.gameOver) {
+                //index++;
                 continue;
             }
+
+            document.getElementById(player.id).children[1].textContent=player.score;//toString(player.score);
 
             gc.beginPath();
             gc.fillStyle = player.color;
@@ -201,14 +282,14 @@
                 }
             }
             gc.stroke();
-            index++;
+            //index++;
         }
-        if(index<numOfPlayers){
-            for(var i=index; i<numOfPlayers; i++){
-                removePlayer(i);
-                numOfPlayers--;
-            }
-        }
+        // if(index<numOfPlayers){
+        //     for(var i=index; i<numOfPlayers; i++){
+        //         removePlayer(i);
+        //         numOfPlayers--;
+        //     }
+        // }
 
         //gc.stroke();
         gc.strokeStyle = "#000000";
@@ -249,7 +330,8 @@
             socket = new WebSocket('ws://localhost:8090/websocket');
             socket.onopen = function () {
                 drawBaseMap();
-                canvas.style.display="inline-block";
+                //canvas.style.display="inline-block";
+                canvas.className="show";
                 showMessage('ONLINE');
                 socket.send('GUEST');
             };
@@ -261,7 +343,8 @@
                 showMessage('Sorry but there was an error.');
             };
             socket.onclose = function () {
-                canvas.style.display="none";
+                //canvas.style.display="none";
+                canvas.className="";
                 showMessage('Server offline.');
                 sleep(2000);
                 subscribeToWebSocket();
