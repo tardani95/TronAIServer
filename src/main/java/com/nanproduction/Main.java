@@ -62,6 +62,7 @@ public class Main{
     }
 
     public static void stopServerAndExit(){
+        Game.STOP =true;
         STOP = true;
         System.out.println("Stopping application...");
     }

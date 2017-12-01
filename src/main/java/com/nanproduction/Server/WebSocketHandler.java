@@ -65,12 +65,13 @@ public class WebSocketHandler extends BaseWebSocketHandler {
             }
 
         } else {
-            if (game.getGameState() == GameStateEnum.WAITING_FOR_PLAYERS) {
-                if (message.equals("READY")) {
-                    player.setReady(true);
+            if (game.getGameState() == GameStateEnum.WAITING_FOR_PLAYERS && message.equals("READY")) {
+                if(player.isGameOver()) {
+                    game.readdNewPlayer(connection);
                 }
+                player.setReady(true);
                 System.out.println("Player " + player.getId() + " is ready!");
-            } else {
+            } else if (!message.equals("READY")){
                 System.out.println(player.getId() + ": " + message/*+" time:"+ System.currentTimeMillis()%10000*/);
                 //Game.getInstance().addKeyCode(message);
                 player.setKeyCode(message);

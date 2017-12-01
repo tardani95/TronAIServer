@@ -33,46 +33,7 @@
     }
 
     /*TODO - slide in*/
-    /*#myCanvas{*/
-        /*height: 0;*/
-        /*overflow: hidden;*/
-        /*background: red;*/
-        /*-moz-animation: slide 1s ease 3.5s forwards;*/
-        /*-webkit-animation: slide 1s ease 3.5s forwards;*/
-        /*-o-animation: slide 1s ease 3.5s forwards;*/
-        /*-ms-animation: slide 1s ease 3.5s forwards;*/
-        /*animation: slide 1s ease 3.5s forwards;*/
-    /*}*/
 
-    /*@-moz-keyframes slide !* Firefox *!*/
-    /*{*/
-        /*from {height: 0;}*/
-        /*to {height: 300px;}*/
-    /*}*/
-
-    /*@-webkit-keyframes slide !* Safari and Chrome *!*/
-    /*{*/
-        /*from {height: 0;}*/
-        /*to {height: 300px;}*/
-    /*}*/
-
-    /*@-o-keyframes slide !* Opera *!*/
-    /*{*/
-        /*from {background: red;}*/
-        /*to {background: yellow;}*/
-    /*}*/
-
-    /*@-ms-keyframes slide !* IE10 *!*/
-    /*{*/
-        /*from {height: 0;}*/
-        /*to {height: 300px;}*/
-    /*}*/
-
-    /*@keyframes slide*/
-    /*{*/
-        /*from {height: 0;}*/
-        /*to {height: 300px;}*/
-    /*}*/
 
 
 </style>
@@ -112,8 +73,11 @@
 
 <!-- Header with full-height image -->
 <header class="bgimg-1 w3-display-container w3-grayscale-min" id="home">
-    <div class="w3-display-center w3-text-white" align="center"style="padding-top:48px">
-        <p align="center" ><canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000; display:none;"></canvas></p>
+    <div class="w3-display-center w3-text-white" align="center">
+        <div style="padding-top:70px">
+            <canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000; display:none; "></canvas>
+            <ul  id="scoreBoard" class="w3-ul w3-card-4" style="width: 400px;display:inline-block; vertical-align: top; padding-top: 40px"></ul>
+        </div>
         <span class="w3-jumbo w3-hide-small" id="message">Connecting...</span><br>
         <span class="w3-xxlarge w3-hide-large w3-hide-medium">Start something that matters</span><br>
         <!--<span class="w3-large">Stop wasting valuable time with projects that just isn't you.</span>-->
@@ -142,10 +106,11 @@
     var MAP_SIZE_X = 50;
     var MAP_SIZE_Y = 35;
     var BODY_SCALE = 0.5;
-
+    var scoreBoard = document.getElementById('scoreBoard');
+    var numOfPlayers = 0;
     initWindow();
 
-    //drawBaseMap();
+
 
     function initWindow() {
         canvas.width = CELL_SIZE * MAP_SIZE_X;
@@ -153,6 +118,8 @@
     }
 
     function drawBaseMap() {
+        gc.fillStyle = "#FFFFFF";
+        gc.fillRect(0, 0, canvas.width, canvas.height);
         gc.beginPath();
         gc.lineWidth = 0.5;
         for (i = 1; i < MAP_SIZE_X; i++) {
@@ -167,16 +134,52 @@
         gc.stroke();
     }
 
+    function removePlayer(index){
+        var pid='player'+index;
+        var item = document.getElementById(pid);
+        scoreBoard.removeChild(item);
+    }
+    function addNewPlayer(player) {
+        var listItem = document.createElement('li');
+        listItem.setAttribute('id', 'player'+player.id);
+        listItem.setAttribute('style',"background: "+player.color+"; alignment: left");
+        listItem.setAttribute('class',"w3-bar");
+
+        var playerName = document.createElement('span');
+        playerName.appendChild(document.createTextNode(player.name));
+        playerName.setAttribute('style', "padding: 20px")
+
+        var score = document.createElement('span');
+        score.appendChild(document.createTextNode(player.score))
+
+        listItem.appendChild(playerName);
+        listItem.appendChild(score);
+        scoreBoard.appendChild(listItem);
+    }
+
+
     function drawPlayers(gameData) {
-        gc.fillStyle = "#FFFFFF";
-        gc.fillRect(0, 0, canvas.width, canvas.height);
         drawBaseMap();
         //draw achievement
         gc.fillStyle = "#FF0000";
         gc.fillRect(CELL_SIZE * gameData.achievements.coord.x, CELL_SIZE * gameData.achievements.coord.y, CELL_SIZE, CELL_SIZE);
-
+        var index = 0;
         //gc.beginPath();
         for (player of gameData.players) {
+            if(Number(player.id)>Number(index)){
+                removePlayer(player.id);
+                numOfPlayers++;
+                index=player.id;
+            }
+            if(player.id>=numOfPlayers){
+                numOfPlayers=index+1;
+                addNewPlayer(player);
+            }
+
+            if(player.gameOver) {
+                continue;
+            }
+
             gc.beginPath();
             gc.fillStyle = player.color;
             gc.fillRect(CELL_SIZE * player.head.x, CELL_SIZE * player.head.y, CELL_SIZE, CELL_SIZE);
@@ -198,7 +201,15 @@
                 }
             }
             gc.stroke();
+            index++;
         }
+        if(index<numOfPlayers){
+            for(var i=index; i<numOfPlayers; i++){
+                removePlayer(i);
+                numOfPlayers--;
+            }
+        }
+
         //gc.stroke();
         gc.strokeStyle = "#000000";
     }
@@ -237,8 +248,9 @@
         if ('WebSocket' in window) {
             socket = new WebSocket('ws://localhost:8090/websocket');
             socket.onopen = function () {
-                canvas.style.display="block";
-                showMessage('Connected to WebSocket as GUEST');
+                drawBaseMap();
+                canvas.style.display="inline-block";
+                showMessage('ONLINE');
                 socket.send('GUEST');
             };
             socket.onmessage = function (msg) {
@@ -249,11 +261,18 @@
                 showMessage('Sorry but there was an error.');
             };
             socket.onclose = function () {
+                canvas.style.display="none";
                 showMessage('Server offline.');
+                sleep(2000);
+                subscribeToWebSocket();
             };
         } else {
             showMessage('Your browser does not support HTML5 WebSockets.');
         }
+    }
+
+    function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
     }
 </script>
 

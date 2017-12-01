@@ -20,10 +20,14 @@ public class Game {
     public static final String[] COLORS = new String[]{"#000099ff", "#339933ff", "#ffcc00ff", "#663300ff", "#000000ff", "#33ccffff", "#ff9966ff"};
     private GameStateEnum gameState;
     private List<Point> freeCoords;
+    public static boolean STOP = false;
+
 
     private static Map<WebSocketConnection, Player> players = new ConcurrentHashMap<>();
     private static List<WebSocketConnection> watchers = new ArrayList<>();
     private Achievement achievement;
+
+    private int numOfActivePlayers;
 
     private Thread thread;
 
@@ -51,26 +55,26 @@ public class Game {
 
     public void init() {
         players = new ConcurrentHashMap<>();
-        freeCoords = new ArrayList<>();
-        for (int i = 0; i < MAP_SIZE_X; i++) {
-            for (int j = 0; j < MAP_SIZE_Y; j++) {
-                freeCoords.add(new Point(i, j));
-            }
-        }
-
-        achievement = new Achievement(getRandFreeCoord());
-        gameState = GameStateEnum.WAITING_FOR_PLAYERS;
         thread = new Thread(new GameThread());
         thread.start();
     }
 
-    public void addNewPlayer(WebSocketConnection connection, String jsonString) {
+    synchronized public void addNewPlayer(WebSocketConnection connection, String jsonString) {
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
         String name = jsonObject.get("name").getAsString();
         String color = jsonObject.get("color").getAsString();
-        Player player = new Player(getRandFreeCoord(), players.size(), color, name);
+        Player player = new Player(getRandFreeCoord(), numOfActivePlayers, color, name);
         players.put(connection, player);
+        numOfActivePlayers++;
+    }
+
+    synchronized public void readdNewPlayer(WebSocketConnection connection) {
+        Player player=players.get(connection);
+        player.reinitPlayer(getRandFreeCoord(), numOfActivePlayers);
+        player.setReady(true);
+        players.put(connection,player);
+        numOfActivePlayers++;
     }
 
     public void addWatcher(WebSocketConnection connection) {
@@ -81,8 +85,15 @@ public class Game {
         watchers.remove(connection);
     }
 
-    public void removePlayer(WebSocketConnection connection) {
+    synchronized public void removePlayer(WebSocketConnection connection) {
+        int playerId=players.get(connection).getId();
+        for(Player player:players.values()){
+            if(player.getId()>playerId){
+                player.decreaseId();
+            }
+        }
         players.remove(connection);
+        numOfActivePlayers--;
     }
 
     public Player getPlayer(WebSocketConnection connection) {
@@ -112,9 +123,25 @@ public class Game {
         return players;
     }*/
 
+    private void printDiedPlayer(Player player){
+        System.out.println("Player "+player.getId()+" is died, more " + (numOfActivePlayers-1));
+    }
+
+    private void killPlayers(){
+        for(Player player:players.values()) {
+            player.killPlayer();
+        }
+    }
+
     private void movePlayers() {
         for (Player player : players.values()) {
-            player.move();
+            if(!player.isGameOver()) {
+                player.move();
+                if(player.isGameOver()){
+                    printDiedPlayer(player);
+                    numOfActivePlayers--;
+                }
+            }
         }
     }
 
@@ -155,57 +182,91 @@ public class Game {
 
     public class GameThread extends Thread {
 
-        @Override
-        public void run() {
-
-            while (!readyToPlay() || players.size() < 2) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        private void initThread(){
+            killPlayers();
+            numOfActivePlayers=0;
+            freeCoords = new ArrayList<>();
+            for (int i = 0; i < MAP_SIZE_X; i++) {
+                for (int j = 0; j < MAP_SIZE_Y; j++) {
+                    freeCoords.add(new Point(i, j));
                 }
-                refreshGUI();
-                //controller.drawPlayers(players.values());
             }
 
-            gameState = GameStateEnum.PLAYING;
+            achievement = new Achievement(getRandFreeCoord());
+            gameState = GameStateEnum.WAITING_FOR_PLAYERS;
+            System.out.println("New Game - Waiting for players");
+        }
 
-            while (players.size() > 1) {
-                refreshGUI();
-                //controller.drawPlayers(players.values());
-                for (Player player : players.values()) {
-                    player.stepPlayer();
-                }
-                movePlayers();
-                for (Player player1 : players.values()) {
-                    for (Player player2 : players.values()) {
-                        if (player1.getId() == player2.getId()) {
-                            continue;
-                        }
-
-                        player1.collisionDetection(player2);
+        @Override
+        public void run() {
+            while (!STOP) {
+                initThread();
+                while (!readyToPlay() || players.size() < 2) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    refreshGUI();
+                    //controller.drawPlayers(players.values());
                 }
-                for (Map.Entry<WebSocketConnection, Player> entry : players.entrySet()) {
+
+                gameState = GameStateEnum.PLAYING;
+                System.out.println("Game is starting");
+
+                while (numOfActivePlayers > 1) {
+                    refreshGUI();
+                    //controller.drawPlayers(players.values());
+                    for (Player player : players.values()) {
+                        if (!player.isGameOver()) {
+                            player.stepPlayer();
+                        }
+                    }
+                    movePlayers();
+                    for (Player player1 : players.values()) {
+                        if (!player1.isGameOver()) {
+                            for (Player player2 : players.values()) {
+                                if (!player2.isGameOver()) {
+                                    if (player1.getId() == player2.getId()) {
+                                        continue;
+                                    }
+
+                                    player1.collisionDetection(player2);
+                                    if (player1.isGameOver()) {
+                                        printDiedPlayer(player1);
+                                        numOfActivePlayers--;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                /*for (Map.Entry<WebSocketConnection, Player> entry : players.entrySet()) {
                     Player player = entry.getValue();
                     if (player.isGameOver()) {
                         player.deletePlayer(Game.this);
                         players.remove(entry.getKey());
                         //players.remove(player);
                     }
+                }*/
+
+
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    //controller.setScore(players.values());
                 }
 
-
+                gameState = GameStateEnum.ENDING;
+                System.out.println("Game is ended");
+                refreshGUI();
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                //controller.setScore(players.values());
             }
-
-            gameState = GameStateEnum.ENDING;
-            refreshGUI();
             //controller.endingGame();
             thread.stop();
         }
