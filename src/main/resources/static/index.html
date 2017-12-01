@@ -146,7 +146,7 @@
         listItem.setAttribute('class',"w3-bar");
 
         var playerName = document.createElement('span');
-        playerName.appendChild(document.createTextNode(player.id));
+        playerName.appendChild(document.createTextNode(player.name));
         playerName.setAttribute('style', "padding: 20px")
 
         var score = document.createElement('span');
@@ -166,7 +166,6 @@
         var index = 0;
         //gc.beginPath();
         for (player of gameData.players) {
-
             if(Number(player.id)>Number(index)){
                 removePlayer(player.id);
                 numOfPlayers++;
@@ -176,6 +175,11 @@
                 numOfPlayers=index+1;
                 addNewPlayer(player);
             }
+
+            if(player.gameOver) {
+                continue;
+            }
+
             gc.beginPath();
             gc.fillStyle = player.color;
             gc.fillRect(CELL_SIZE * player.head.x, CELL_SIZE * player.head.y, CELL_SIZE, CELL_SIZE);
@@ -246,7 +250,7 @@
             socket.onopen = function () {
                 drawBaseMap();
                 canvas.style.display="inline-block";
-                showMessage('Connected to WebSocket as GUEST');
+                showMessage('ONLINE');
                 socket.send('GUEST');
             };
             socket.onmessage = function (msg) {

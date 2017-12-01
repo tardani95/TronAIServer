@@ -18,7 +18,9 @@ public class Player {
 
     private int id;
     private String name;
+
     private boolean gameOver;
+
     private volatile boolean ready;
     private Point head;
     private List<Point> tail;
@@ -26,7 +28,6 @@ public class Player {
     private int score;
     private String color;
     private String keyCode;
-
     public String getColor() {
         return color;
     }
@@ -59,6 +60,15 @@ public class Player {
         return gameOver;
     }
 
+    public void setGameOver() {
+        this.gameOver = true;
+    }
+
+    public void killPlayer(){
+        gameOver=true;
+        ready=false;
+    }
+
     public void setColor(String color) {
         this.color = color;
     }
@@ -80,7 +90,7 @@ public class Player {
         this.name = playerName;
     }
 
-    public Player(Point head, int id) {
+    public void reinitPlayer(Point head, int id){
         gameOver = false;
         this.id = id;
 
@@ -89,11 +99,15 @@ public class Player {
 
         tail = new ArrayList<>();
         dir = eDirection.STOP;
+        keyCode=null;
 
-        color = Game.COLORS[id];
         ready = false;
 
         score = 0;
+    }
+
+    public Player(Point head, int id) {
+        reinitPlayer(head, id);
     }
 
     synchronized public void stepPlayer() {
@@ -134,7 +148,7 @@ public class Player {
         tail.add(0, new Point(head.getX(), head.getY()));
         head.move(dir);
         if (head.outOfBorder()) {
-            gameOver = true;
+            killPlayer();
         }
         game.removeFreeCoord(head);
         if (game.getAchievement().getCoord().equals(head)) {
@@ -146,28 +160,28 @@ public class Player {
         }
         for (Point point : tail) {
             if (head.equals(point)) {
-                gameOver = true;
+                killPlayer();
 
             }
         }
     }
 
-    void deletePlayer(Game game) {
+    /*void deletePlayer(Game game) {
         for (Point point : tail) {
             game.addFreeCoord(point);
         }
-    }
+    }*/
 
     void collisionDetection(Player other) {
         if (head.equals(other.getHead())) {
             if (id < other.getId()) {
                 Game.getInstance().addFreeCoord(head);
             }
-            gameOver = true;
+            killPlayer();
         }
         for (Point point : other.getTail()) {
             if (head.equals(point)) {
-                gameOver = true;
+                killPlayer();
             }
         }
     }
