@@ -70,7 +70,7 @@ public class Game {
 
     private String randomColor(){
         Random random = new Random();
-        Color color = new Color(random.nextDouble(),random.nextDouble(), random.nextDouble(), random.nextDouble());
+        Color color = new Color(random.nextDouble(),random.nextDouble(), random.nextDouble(), 1.0);
         return "#"+color.toString().substring(2);
     }
 
@@ -87,9 +87,25 @@ public class Game {
         String name = jsonObject.get("name").getAsString();
         String color = jsonObject.get("color").getAsString();
 
-        if(sameColor(color,"#"+ Color.RED.toString().substring(2),5)){
-            color=randomColor();
-        }
+
+
+        boolean hasSameColor=false;
+        do {
+            hasSameColor=false;
+            if(sameColor(color,"#"+ Color.RED.toString().substring(2),5)){
+                color=randomColor();
+            }
+            if(sameColor(color,"#FFFFFF",5)){
+                color=randomColor();
+            }
+            for (Player player:players.values()){
+                if(sameColor(color,player.getColor(),5)){
+                    color=randomColor();
+                    hasSameColor=true;
+                    break;
+                }
+            }
+        }while (hasSameColor);
 
         Player player = new Player(getRandFreeCoord(), connection.hashCode(), color, name);
         players.put(connection, player);
