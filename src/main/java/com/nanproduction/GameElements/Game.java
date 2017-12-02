@@ -3,6 +3,8 @@ package com.nanproduction.GameElements;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.paint.Color;
 import org.webbitserver.WebSocketConnection;
 
 import java.util.ArrayList;
@@ -53,6 +55,26 @@ public class Game {
         this.achievement = achievement;
     }
 
+    private boolean sameColor(String color1, String color2,int threshold){
+        if(Integer.parseInt(color1.substring(1,3),16)/threshold!=Integer.parseInt(color2.substring(1,3),16)/threshold){
+            return false;
+        }
+        if(Integer.parseInt(color1.substring(3,5),16)/threshold!=Integer.parseInt(color2.substring(3,5),16)/threshold){
+            return false;
+        }
+        if(Integer.parseInt(color1.substring(5,7),16)/threshold!=Integer.parseInt(color2.substring(5,7),16)/threshold){
+            return false;
+        }
+        return true;
+    }
+
+    private String randomColor(){
+        Random random = new Random();
+        Color color = new Color(random.nextDouble(),random.nextDouble(), random.nextDouble(), 1.0);
+        return "#"+color.toString().substring(2);
+    }
+
+
     public void init() {
         players = new ConcurrentHashMap<>();
         thread = new Thread(new GameThread());
@@ -64,14 +86,35 @@ public class Game {
         JsonObject jsonObject = gson.fromJson(jsonString, JsonObject.class);
         String name = jsonObject.get("name").getAsString();
         String color = jsonObject.get("color").getAsString();
-        Player player = new Player(getRandFreeCoord(), numOfActivePlayers, color, name);
+
+
+
+        boolean hasSameColor=false;
+        do {
+            hasSameColor=false;
+            if(sameColor(color,"#"+ Color.RED.toString().substring(2),5)){
+                color=randomColor();
+            }
+            if(sameColor(color,"#FFFFFF",5)){
+                color=randomColor();
+            }
+            for (Player player:players.values()){
+                if(sameColor(color,player.getColor(),5)){
+                    color=randomColor();
+                    hasSameColor=true;
+                    break;
+                }
+            }
+        }while (hasSameColor);
+
+        Player player = new Player(getRandFreeCoord(), connection.hashCode(), color, name);
         players.put(connection, player);
         numOfActivePlayers++;
     }
 
     synchronized public void readdNewPlayer(WebSocketConnection connection) {
         Player player=players.get(connection);
-        player.reinitPlayer(getRandFreeCoord(), numOfActivePlayers);
+        player.reinitPlayer(getRandFreeCoord(), connection.hashCode());
         player.setReady(true);
         players.put(connection,player);
         numOfActivePlayers++;
