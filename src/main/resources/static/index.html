@@ -18,17 +18,18 @@
         filter: grayscale(0);
         height: 100%;
         line-height: 1.8;
+        transition: all 0.5s
+
     }
 
-
-    html.grayscale{
+    html.grayscale {
         filter: grayscale(100%);
+        transition: all 0.5s
     }
 
     #btnDownload:hover ~ #BODY {
         filter: grayscale(100%);
     }
-
 
     /* Full height image header */
     .bgimg-1 {
@@ -43,23 +44,22 @@
         padding: 16px;
     }
 
-    canvas{
+    canvas {
         height: 0;
         overflow: hidden;
         width: 10em;
         opacity: 0;
         transform: rotateX(-90deg);
-        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+        transition: all 0.5s cubic-bezier(.36, -0.64, .34, 1.76);
     }
 
-    canvas.show{
-        width :1000px;
-        height :700px;
+    canvas.show {
+        width: 1000px;
+        height: 700px;
         opacity: 1;
         transform: none;
-        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+        transition: all 0.5s cubic-bezier(.36, -0.64, .34, 1.76);
     }
-
 
     li {
         list-style: none;
@@ -71,7 +71,7 @@
         width: 10em;
         opacity: 0;
         transform: rotateX(-90deg);
-        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+        transition: all 0.5s cubic-bezier(.36, -0.64, .34, 1.76);
     }
 
     li.show {
@@ -79,9 +79,8 @@
         margin: 2px 0;
         opacity: 1;
         transform: none;
-        transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76);
+        transition: all 0.5s cubic-bezier(.36, -0.64, .34, 1.76);
     }
-
 
 
 </style>
@@ -94,8 +93,12 @@
     <div class="w3-bar w3-white w3-card" id="myNavbar">
         <a href="#home" class="w3-bar-item w3-button w3-wide">TRON</a>
         <!-- Right-sided navbar links -->
-        <div class="w3-right w3-hide-small">
+        <div class="w3-right w3-hide-small w3-dropdown-hover">
             <a id="btnDownload" class="w3-bar-item w3-button">DOWNLOAD CLIENT</a>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="D:\Programozas\JAVA\Tron_AI\TronAIClient\target\TronAIClient-0_1_beta.jar" download="TronAIClient.jar" class="w3-bar-item w3-button">JAR Client</a>
+                <a href="https://github.com/tardani95/TronAIClient" class="w3-bar-item w3-button">Sources</a>
+            </div>
             <!--<a href="#team" class="w3-bar-item w3-button"><i class="fa fa-user"></i> TEAM</a>-->
             <!--<a href="#work" class="w3-bar-item w3-button"><i class="fa fa-th"></i> WORK</a>-->
             <!--<a href="#pricing" class="w3-bar-item w3-button"><i class="fa fa-usd"></i> PRICING</a>-->
@@ -104,13 +107,14 @@
         <!-- Hide right-floated links on small screens and replace them with a menu icon -->
 
         <!--<a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">-->
-            <!--<i class="fa fa-bars"></i>-->
+        <!--<i class="fa fa-bars"></i>-->
         <!--</a>-->
     </div>
 </div>
 
 <!-- Sidebar on small screens when clicking the menu icon -->
-<nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large" style="display:none" id="mySidebar">
+<nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large" style="display:none"
+     id="mySidebar">
     <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
     <a href="#about" onclick="w3_close()" class="w3-bar-item w3-button">ABOUT</a>
     <a href="#team" onclick="w3_close()" class="w3-bar-item w3-button">TEAM</a>
@@ -124,14 +128,15 @@
     <div class="w3-display-center w3-text-white" align="center">
         <div style="padding-top:70px">
             <canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000;"></canvas>
-            <ul  id="scoreBoard" class="w3-ul" style="width: 400px;display:inline-block; vertical-align: top; padding-top: 40px;"></ul>
+            <ul id="scoreBoard" class="w3-ul"
+                style="width: 400px;display:inline-block; vertical-align: top; padding-top: 40px;"></ul>
         </div>
         <span class="w3-jumbo w3-hide-small" id="message">Connecting...</span><br>
         <span class="w3-xxlarge w3-hide-large w3-hide-medium">Start something that matters</span><br>
         <!--<span class="w3-large">Stop wasting valuable time with projects that just isn't you.</span>-->
         <!--<p><a href="#about" class="w3-button w3-white w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Learn more and start today</a></p>-->
     </div>
-    <div class="w3-display-bottomleft w3-text-grey w3-large" >
+    <div class="w3-display-bottomleft w3-text-grey w3-large">
         <i class="fa fa-facebook-official w3-hover-opacity"></i>
         <i class="fa fa-instagram w3-hover-opacity"></i>
         <i class="fa fa-snapchat w3-hover-opacity"></i>
@@ -160,7 +165,6 @@
     initWindow();
 
 
-
     function initWindow() {
         canvas.width = CELL_SIZE * MAP_SIZE_X;
         canvas.height = CELL_SIZE * MAP_SIZE_Y;
@@ -183,17 +187,17 @@
         gc.stroke();
     }
 
-    function removePlayer(id){
+    function removePlayer(id) {
         var index = listIds.indexOf(id);
-        listIds.splice(index,1);
+        listIds.splice(index, 1);
         var item = document.getElementById(id);
         // closePlayerItem(item);
         item.className = "";
         closePlayerItem(item);
     }
 
-    function closePlayerItem(item){
-        setTimeout(function() {
+    function closePlayerItem(item) {
+        setTimeout(function () {
             scoreBoard.removeChild(item);
         }, 100);
     }
@@ -202,8 +206,8 @@
         listIds.push(player.id);
         var listItem = document.createElement('li');
         listItem.setAttribute('id', player.id);
-        listItem.setAttribute('style',"background: "+player.color+"; alignment: left");
-        listItem.setAttribute('class',"w3-bar");
+        listItem.setAttribute('style', "background: " + player.color + "; alignment: left");
+        listItem.setAttribute('class', "w3-bar");
 
         var playerName = document.createElement('span');
         playerName.appendChild(document.createTextNode(player.name));
@@ -215,11 +219,10 @@
         listItem.appendChild(playerName);
         listItem.appendChild(score);
         scoreBoard.appendChild(listItem);
-        setTimeout(function() {
+        setTimeout(function () {
             listItem.className = listItem.className + " show";
         }, 10);
     }
-
 
 
     function drawPlayers(gameData) {
@@ -234,20 +237,20 @@
         //addNewPlayers
         for (player of gameData.players) {
             var playerIndex = listIds.indexOf(player.id);
-            if(playerIndex<0){
+            if (playerIndex < 0) {
                 addNewPlayer(player);
             }
         }
         //delete exited Players
-        for(listId of listIds){
-            var found=false;
-            for(player of gameData.players){
-                if(listId===player.id){
-                    found=true;
+        for (listId of listIds) {
+            var found = false;
+            for (player of gameData.players) {
+                if (listId === player.id) {
+                    found = true;
                     break;
                 }
             }
-            if(!found){
+            if (!found) {
                 removePlayer(listId);
             }
         }
@@ -265,12 +268,12 @@
             //     addNewPlayer(player);
             // }
 
-            if(player.gameOver) {
+            if (player.gameOver) {
                 //index++;
                 continue;
             }
 
-            document.getElementById(player.id).children[1].textContent=player.score;//toString(player.score);
+            document.getElementById(player.id).children[1].textContent = player.score;//toString(player.score);
 
             gc.beginPath();
             gc.fillStyle = player.color;
@@ -340,9 +343,10 @@
         if ('WebSocket' in window) {
             socket = new WebSocket('ws://localhost:8090/websocket');
             socket.onopen = function () {
+                document.getElementById("HTML").className="";
                 drawBaseMap();
                 //canvas.style.display="inline-block";
-                canvas.className="show";
+                canvas.className = "show";
                 showMessage('ONLINE');
                 socket.send('GUEST');
             };
@@ -355,8 +359,9 @@
             };
             socket.onclose = function () {
                 //canvas.style.display="none";
-                canvas.className="";
+                canvas.className = "";
                 showMessage('Server offline.');
+                document.getElementById("HTML").className="grayscale";
                 sleep(2000);
                 subscribeToWebSocket();
             };
@@ -365,7 +370,7 @@
         }
     }
 
-    function sleep (time) {
+    function sleep(time) {
         return new Promise((resolve) => setTimeout(resolve, time));
     }
 </script>
