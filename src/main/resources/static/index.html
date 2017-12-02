@@ -82,6 +82,11 @@
         transition: all 0.5s cubic-bezier(.36, -0.64, .34, 1.76);
     }
 
+    li.grayscale {
+        opacity: 0.5;
+        transition: all 0.5s;
+    }
+
 
 </style>
 
@@ -96,7 +101,8 @@
         <div class="w3-right w3-hide-small w3-dropdown-hover">
             <a id="btnDownload" class="w3-bar-item w3-button">DOWNLOAD CLIENT</a>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="D:\Programozas\JAVA\Tron_AI\TronAIClient\target\TronAIClient-0_1_beta.jar" download="TronAIClient.jar" class="w3-bar-item w3-button">JAR Client</a>
+                <a href="D:\Programozas\JAVA\Tron_AI\TronAIClient\target\TronAIClient-0_1_beta.jar"
+                   download="TronAIClient.jar" class="w3-bar-item w3-button">JAR Client</a>
                 <a href="https://github.com/tardani95/TronAIClient" class="w3-bar-item w3-button">Sources</a>
             </div>
             <!--<a href="#team" class="w3-bar-item w3-button"><i class="fa fa-user"></i> TEAM</a>-->
@@ -202,12 +208,15 @@
         }, 100);
     }
 
+
     function addNewPlayer(player) {
         listIds.push(player.id);
         var listItem = document.createElement('li');
         listItem.setAttribute('id', player.id);
         listItem.setAttribute('style', "background: " + player.color + "; alignment: left");
         listItem.setAttribute('class', "w3-bar");
+        listItem.className = listItem.className + " grayscale";
+
 
         var playerName = document.createElement('span');
         playerName.appendChild(document.createTextNode(player.name));
@@ -267,10 +276,19 @@
             //     numOfPlayers=index+1;
             //     addNewPlayer(player);
             // }
-
+            listItem = document.getElementById(player.id);
             if (player.gameOver) {
                 //index++;
+                listItem.className = "w3-bar show grayscale";
                 continue;
+            }
+            else {
+                if (player.ready) {
+                    listItem.className = "w3-bar show";
+                }
+                else {
+                    listItem.className = listItem.className + " grayscale";
+                }
             }
 
             document.getElementById(player.id).children[1].textContent = player.score;//toString(player.score);
@@ -343,7 +361,7 @@
         if ('WebSocket' in window) {
             socket = new WebSocket('ws://localhost:8090/websocket');
             socket.onopen = function () {
-                document.getElementById("HTML").className="";
+                document.getElementById("HTML").className = "";
                 drawBaseMap();
                 //canvas.style.display="inline-block";
                 canvas.className = "show";
@@ -361,7 +379,7 @@
                 //canvas.style.display="none";
                 canvas.className = "";
                 showMessage('Server offline.');
-                document.getElementById("HTML").className="grayscale";
+                document.getElementById("HTML").className = "grayscale";
                 sleep(2000);
                 subscribeToWebSocket();
             };
