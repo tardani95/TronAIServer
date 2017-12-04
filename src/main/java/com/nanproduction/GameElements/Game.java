@@ -139,8 +139,10 @@ public class Game {
                 player.decreaseId();
             }
         }
+        if(!players.get(connection).isGameOver()){
+            numOfActivePlayers--;
+        }
         players.remove(connection);
-        numOfActivePlayers--;
     }
 
     public Player getPlayer(WebSocketConnection connection) {
