@@ -2,8 +2,7 @@ package com.nanproduction;
 
 import com.nanproduction.GameElements.Game;
 import com.nanproduction.Server.WebSocketHandler;
-import org.webbitserver.WebServer;
-import org.webbitserver.WebServers;
+import org.webbitserver.*;
 import org.webbitserver.handler.StaticFileHandler;
 
 public class Main{
@@ -38,6 +37,7 @@ public class Main{
     public static void startServer(){
         webServer = WebServers.createWebServer(PORT);
         webServer.add(new StaticFileHandler("src/main/resources/static"));
+        //webServer.add(new StaticFileHandler("/static"));
         webServer.add("/websocket", new WebSocketHandler());
         webServer.start();
 

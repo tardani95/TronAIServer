@@ -3,6 +3,7 @@ package com.nanproduction.GameElements;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import org.webbitserver.WebSocketConnection;
 
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class Game {
 
@@ -319,21 +319,10 @@ public class Game {
 
 
                     try {
-                        Thread.sleep(80);
+                        Thread.sleep(200);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-
-                    if(tmpNumOfActivePlayers >numOfActivePlayers){
-                        deathValue=tmpNumOfActivePlayers-numOfActivePlayers;
-                        for (Player player:players.values()){
-                            if(!player.isGameOver()){
-                                player.increaseScore(deathValue);
-                            }
-                        }
-                    }
-
-
                     //controller.setScore(players.values());
                 }
 
