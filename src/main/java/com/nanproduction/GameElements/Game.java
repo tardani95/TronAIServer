@@ -3,7 +3,6 @@ package com.nanproduction.GameElements;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import org.webbitserver.WebSocketConnection;
 
@@ -12,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Game {
 
@@ -23,6 +23,7 @@ public class Game {
     private GameStateEnum gameState;
     private List<Point> freeCoords;
     public static boolean STOP = false;
+    public long timeInMillis;
 
 
     private static Map<WebSocketConnection, Player> players = new ConcurrentHashMap<>();
@@ -191,7 +192,22 @@ public class Game {
         }
     }
 
-    private boolean readyToPlay() {
+    synchronized private boolean readyToPlay() {
+        if(numOfActivePlayers>1) {
+            if (System.currentTimeMillis() - timeInMillis > 20000) {
+                for (WebSocketConnection connection : players.keySet()) {
+                    if (!players.get(connection).isReady()) {
+                        players.remove(connection);
+                        numOfActivePlayers--;
+                    }
+                }
+                timeInMillis = System.currentTimeMillis();
+                return true;
+            }
+        }else{
+            timeInMillis=System.currentTimeMillis();
+        }
+
         for (Player player : players.values()) {
             if (!player.isReady()) {
                 return false;
@@ -228,9 +244,14 @@ public class Game {
 
     public class GameThread extends Thread {
 
+        private int tmpNumOfActivePlayers;
+        private int deathValue;
+
         private void initThread(){
             killPlayers();
             numOfActivePlayers=0;
+            tmpNumOfActivePlayers =0;
+            timeInMillis=System.currentTimeMillis();
             freeCoords = new ArrayList<>();
             for (int i = 0; i < MAP_SIZE_X; i++) {
                 for (int j = 0; j < MAP_SIZE_Y; j++) {
@@ -262,6 +283,7 @@ public class Game {
 
                 while (numOfActivePlayers > 1) {
                     refreshGUI();
+                    tmpNumOfActivePlayers =numOfActivePlayers;
                     //controller.drawPlayers(players.values());
                     for (Player player : players.values()) {
                         if (!player.isGameOver()) {
@@ -297,10 +319,21 @@ public class Game {
 
 
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(80);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
+                    if(tmpNumOfActivePlayers >numOfActivePlayers){
+                        deathValue=tmpNumOfActivePlayers-numOfActivePlayers;
+                        for (Player player:players.values()){
+                            if(!player.isGameOver()){
+                                player.increaseScore(deathValue);
+                            }
+                        }
+                    }
+
+
                     //controller.setScore(players.values());
                 }
 

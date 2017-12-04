@@ -77,11 +77,16 @@ public class Player {
         this.keyCode = keyCode;
     }
 
-    public void setReady(boolean ready) {
+    synchronized public void setReady(boolean ready) {
+        Game.getInstance().timeInMillis=System.currentTimeMillis();
         this.ready = ready;
     }
 
     public void decreaseId(){this.id--;}
+
+    public void increaseScore(int value){
+        score+=value;
+    }
 
 
     public Player(Point head, int id, String color, String playerName){
