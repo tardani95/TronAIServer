@@ -46,8 +46,12 @@ public class WebSocketHandler extends BaseWebSocketHandler {
             case "RESTARTFUN":
                 restartServer();
                 return;
+            case "LEAVE":
+                game.removePlayer(connection);
+                return;
             default:break;
         }
+        //if(message.charAt(0)!='{'){return;}
 
 
         Player player = game.getPlayer(connection);
