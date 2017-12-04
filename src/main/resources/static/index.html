@@ -489,6 +489,10 @@
                 canvas.className = "";
                 document.getElementById("div_startAGame").className="hide";
                 hideBtnReady();
+                for(id of listIds){
+                    removePlayer(id);
+                }
+
                 btnPlay.textContent = "PLAY!";
                 playing=false;
 
