@@ -3,7 +3,6 @@ package com.nanproduction.GameElements;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import org.webbitserver.WebSocketConnection;
 
@@ -17,6 +16,7 @@ public class Game {
 
     public static final int MAP_SIZE_X = 50;
     public static final int MAP_SIZE_Y = 35;
+    public static final int GAME_SPEED = 110;
     private static Game instance = new Game();
     //private static final int NUM_OF_PLAYERS = 4;
     public static final String[] COLORS = new String[]{"#000099ff", "#339933ff", "#ffcc00ff", "#663300ff", "#000000ff", "#33ccffff", "#ff9966ff"};
@@ -319,7 +319,7 @@ public class Game {
 
 
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(GAME_SPEED);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
