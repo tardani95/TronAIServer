@@ -92,14 +92,14 @@ public class Game {
         boolean hasSameColor=false;
         do {
             hasSameColor=false;
-            if(sameColor(color,"#"+ Color.RED.toString().substring(2),5)){
+            if(sameColor(color,"#"+ Color.RED.toString().substring(2),10)){
                 color=randomColor();
             }
-            if(sameColor(color,"#FFFFFF",5)){
+            if(sameColor(color,"#FFFFFF",10)){
                 color=randomColor();
             }
             for (Player player:players.values()){
-                if(sameColor(color,player.getColor(),5)){
+                if(sameColor(color,player.getColor(),10)){
                     color=randomColor();
                     hasSameColor=true;
                     break;
@@ -109,6 +109,9 @@ public class Game {
 
         Player player = new Player(getRandFreeCoord(), connection.hashCode(), color, name);
         players.put(connection, player);
+        if(!watchers.contains(connection)){
+            watchers.add(connection);
+        }
         numOfActivePlayers++;
     }
 
@@ -205,9 +208,9 @@ public class Game {
         for (WebSocketConnection watcher : watchers) {
             watcher.send(jsonString);
         }
-        for (WebSocketConnection player : players.keySet()) {
-            player.send(jsonString);
-        }
+//        for (WebSocketConnection player : players.keySet()) {
+//            player.send(jsonString);
+//        }
     }
 
 

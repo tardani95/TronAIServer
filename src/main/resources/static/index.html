@@ -87,6 +87,49 @@
         transition: all 0.5s;
     }
 
+    a.hideReady{
+        width: 0;
+        /*display: none;*/
+        overflow: hidden;
+
+        transition: all 0.4s ease-out;
+        opacity: 0;
+    }
+    a.showReady{
+        /*display: inline-block;*/
+        border: none;
+        opacity: 1;
+        width: 77px;
+        transition: all 0.4s ease-out;
+    }
+
+    a.widePlay{
+        border: none;
+        width: 150px;
+        transition: all 0.4s ease-out;
+    }
+
+    a.shortPlay {
+        width: 77px;
+        transition: all 0.4s ease-out;
+    }
+
+    div.show{
+        height: 3em;
+        opacity: 1;
+        transform: none;
+        transition: all 0.5s cubic-bezier(.36, -0.64, .34, 1.76);
+    }
+
+    div.hide{
+        height: 0;
+        float: left;
+        overflow: hidden;
+        opacity: 0;
+        transform: rotateX(-90deg);
+        transition: all 0.5s cubic-bezier(.36, -0.64, .34, 1.76);
+    }
+
 
 </style>
 
@@ -122,11 +165,7 @@
 <nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large" style="display:none"
      id="mySidebar">
     <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
-    <a href="#about" onclick="w3_close()" class="w3-bar-item w3-button">ABOUT</a>
-    <a href="#team" onclick="w3_close()" class="w3-bar-item w3-button">TEAM</a>
-    <a href="#work" onclick="w3_close()" class="w3-bar-item w3-button">WORK</a>
-    <a href="#pricing" onclick="w3_close()" class="w3-bar-item w3-button">PRICING</a>
-    <a href="#contact" onclick="w3_close()" class="w3-bar-item w3-button">CONTACT</a>
+    <a onclick="w3_close()" class="w3-bar-item w3-button">DOWNLOAD CLIENT</a>
 </nav>
 
 <!-- Header with full-height image -->
@@ -134,8 +173,15 @@
     <div class="w3-display-center w3-text-white" align="center">
         <div style="padding-top:70px">
             <canvas id="myCanvas" width="1000" height="700" style="border:4px solid #000000;"></canvas>
-            <ul id="scoreBoard" class="w3-ul"
-                style="width: 400px;display:inline-block; vertical-align: top; padding-top: 40px;"></ul>
+            <div style="width: 400px;display:inline-block; vertical-align: top; padding-top: 40px; ">
+                <div id="div_startAGame" class="hide" >
+                    <input id = "playerColorPicker" type="color" style="float: left; height: 3em; width: 50px; margin: 0; padding: 0; border: none; background: none">
+                    <input id="playerNameInput" type="text"  class="w3-input w3-border" style="width: 200px; float: left" placeholder="Your name">
+                    <a  id = "connectAsPlayer" onclick="onClickPlay()" style="height: 3em; margin-left: -4px;  background: white; color: black;" class="w3-bar-item w3-button w3-medium widePlay">PLAY!</a>
+                    <a  id = "readyAsPlayer" onclick="onClickReady()" style="height: 3em; margin-left: -4px; background: white; color: black;" class="w3-bar-item w3-button w3-medium hideReady" >READY!</a>
+                </div>
+                <ul id="scoreBoard" class="w3-ul"></ul>
+            </div>
         </div>
         <span class="w3-jumbo w3-hide-small" id="message">Connecting...</span><br>
         <span class="w3-xxlarge w3-hide-large w3-hide-medium">Start something that matters</span><br>
@@ -166,9 +212,71 @@
     var MAP_SIZE_Y = 35;
     var BODY_SCALE = 0.5;
     var scoreBoard = document.getElementById('scoreBoard');
+
+    var playerName = document.getElementById('playerNameInput');
+    var playerColor = document.getElementById('playerColorPicker');
+
+    var btnPlay = document.getElementById('connectAsPlayer');
+    var btnReady = document.getElementById('readyAsPlayer');
+
+    var playing = false;
     //var numOfPlayers = 0;
     var listIds = [];
     initWindow();
+
+    document.addEventListener('keydown', function(event) {
+        if(playing) {
+            if (event.keyCode == 65) {
+                socket.send('4');
+            }
+            else if (event.keyCode == 87) {
+                socket.send('8');
+            }
+            else if (event.keyCode == 68) {
+                socket.send('6');
+
+            }
+            else if (event.keyCode == 83) {
+                socket.send('2');
+
+            }
+        }
+    }, true);
+
+    function onClickPlay() {
+        if(!playing) {
+            showBtnReady();
+            socket.send('{"name":"' + playerName.value + '","color":"' + playerColor.value + '"}');
+            btnPlay.textContent = "LEAVE";
+            playing=true;
+        }
+        else{
+            hideBtnReady();
+            socket.send('LEAVE');
+            btnPlay.textContent = "PLAY!";
+            playing=false;
+        }
+    }
+
+    function showBtnReady() {
+        btnPlay.className = "w3-bar-item w3-button w3-medium shortPlay";
+        setTimeout(function () {
+            btnReady.className = "w3-bar-item w3-button w3-medium showReady";
+        },100);
+    }
+
+    function hideBtnReady() {
+        btnReady.className = "w3-bar-item w3-button w3-medium hideReady";
+        setTimeout(function () {
+            btnPlay.className = "w3-bar-item w3-button w3-medium widePlay";
+        },100);
+    }
+
+
+    function onClickReady() {
+        socket.send('READY');
+
+    }
 
 
     function initWindow() {
@@ -365,6 +473,7 @@
                 drawBaseMap();
                 //canvas.style.display="inline-block";
                 canvas.className = "show";
+                document.getElementById("div_startAGame").className="show";
                 showMessage('ONLINE');
                 socket.send('GUEST');
             };
@@ -378,6 +487,7 @@
             socket.onclose = function () {
                 //canvas.style.display="none";
                 canvas.className = "";
+                document.getElementById("div_startAGame").className="hide";
                 showMessage('Server offline.');
                 document.getElementById("HTML").className = "grayscale";
                 sleep(2000);
@@ -390,6 +500,21 @@
 
     function sleep(time) {
         return new Promise((resolve) => setTimeout(resolve, time));
+    }
+
+    var mySidebar = document.getElementById("mySidebar");
+
+    function w3_open() {
+        if (mySidebar.style.display === 'block') {
+            mySidebar.style.display = 'none';
+        } else {
+            mySidebar.style.display = 'block';
+        }
+    }
+
+    // Close the sidebar with the close button
+    function w3_close() {
+        mySidebar.style.display = "none";
     }
 </script>
 
