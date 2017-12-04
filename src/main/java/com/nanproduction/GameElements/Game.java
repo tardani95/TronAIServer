@@ -3,7 +3,6 @@ package com.nanproduction.GameElements;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import org.webbitserver.WebSocketConnection;
 
@@ -297,7 +296,7 @@ public class Game {
 
 
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

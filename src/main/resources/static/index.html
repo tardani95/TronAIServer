@@ -144,7 +144,7 @@
         <div class="w3-right w3-hide-small w3-dropdown-hover">
             <a id="btnDownload" class="w3-bar-item w3-button">DOWNLOAD CLIENT</a>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="D:\Programozas\JAVA\Tron_AI\TronAIClient\target\TronAIClient-0_1_beta.jar"
+                <a href="TronAIClient-1_0.jar"
                    download="TronAIClient.jar" class="w3-bar-item w3-button">JAR Client</a>
                 <a href="https://github.com/tardani95/TronAIClient" class="w3-bar-item w3-button">Sources</a>
             </div>
@@ -467,7 +467,7 @@
 
     function subscribeToWebSocket() {
         if ('WebSocket' in window) {
-            socket = new WebSocket('ws://localhost:8090/websocket');
+            socket = new WebSocket('ws://172.19.74.149:8090/websocket');
             socket.onopen = function () {
                 document.getElementById("HTML").className = "";
                 drawBaseMap();
