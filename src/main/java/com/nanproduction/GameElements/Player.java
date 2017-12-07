@@ -183,10 +183,13 @@ public class Player {
                 Game.getInstance().addFreeCoord(head);
             }
             killPlayer();
+            return;
         }
         for (Point point : other.getTail()) {
             if (head.equals(point)) {
                 killPlayer();
+                Game.getInstance().addFreeCoord(head);
+                return;
             }
         }
     }

@@ -30,7 +30,7 @@ public class Game {
     private static List<WebSocketConnection> watchers = new ArrayList<>();
     private Achievement achievement;
 
-    private int numOfActivePlayers;
+    public int numOfActivePlayers;
 
     private Thread thread;
 
@@ -89,7 +89,6 @@ public class Game {
         String color = jsonObject.get("color").getAsString();
 
 
-
         boolean hasSameColor=false;
         do {
             hasSameColor=false;
@@ -113,7 +112,7 @@ public class Game {
         if(!watchers.contains(connection)){
             watchers.add(connection);
         }
-        numOfActivePlayers++;
+        //numOfActivePlayers++;
     }
 
     synchronized public void readdNewPlayer(WebSocketConnection connection) {
@@ -182,29 +181,33 @@ public class Game {
         }
     }
 
-    private void movePlayers() {
-        for (Player player : players.values()) {
-            if(!player.isGameOver()) {
-                player.move();
-                if(player.isGameOver()){
-                    printDiedPlayer(player);
-                    numOfActivePlayers--;
-                }
-            }
-        }
-    }
+
 
     synchronized private boolean readyToPlay() {
         if(numOfActivePlayers>1) {
             if (System.currentTimeMillis() - timeInMillis > 20000) {
-                for (WebSocketConnection connection : players.keySet()) {
-                    if (!players.get(connection).isReady()) {
-                        players.remove(connection);
-                        numOfActivePlayers--;
+                int numOfReadyPlayers=0;
+                for(Player player:players.values()){
+                    if(player.isReady()){
+                        numOfReadyPlayers++;
+                    }
+                    if(numOfReadyPlayers>1){
+                        break;
                     }
                 }
-                timeInMillis = System.currentTimeMillis();
-                return true;
+                if(numOfReadyPlayers>1) {
+                    gameState = GameStateEnum.PLAYING;
+                    for (WebSocketConnection connection : players.keySet()) {
+                        if (!players.get(connection).isReady()) {
+                            players.remove(connection);
+                            //numOfActivePlayers--;
+                        }
+                    }
+                    timeInMillis = System.currentTimeMillis();
+                    return true;
+                }else{
+                    timeInMillis=System.currentTimeMillis();
+                }
             }
         }else{
             timeInMillis=System.currentTimeMillis();
@@ -266,6 +269,18 @@ public class Game {
             System.out.println("New Game - Waiting for players");
         }
 
+        private void movePlayers() {
+            for (Player player : players.values()) {
+                if(!player.isGameOver()) {
+                    player.move();
+                    if(player.isGameOver()){
+                        printDiedPlayer(player);
+                        numOfActivePlayers--;
+                    }
+                }
+            }
+        }
+
         @Override
         public void run() {
             while (!STOP) {
@@ -282,9 +297,8 @@ public class Game {
 
                 gameState = GameStateEnum.PLAYING;
                 System.out.println("Game is starting");
-
+                refreshGUI();
                 while (numOfActivePlayers > 1) {
-                    refreshGUI();
                     tmpNumOfActivePlayers =numOfActivePlayers;
                     //controller.drawPlayers(players.values());
                     for (Player player : players.values()) {
@@ -300,32 +314,35 @@ public class Game {
                                     if (player1.getId() == player2.getId()) {
                                         continue;
                                     }
-
                                     player1.collisionDetection(player2);
                                     if (player1.isGameOver()) {
                                         printDiedPlayer(player1);
                                         numOfActivePlayers--;
+                                        break;
                                     }
                                 }
                             }
                         }
                     }
-                /*for (Map.Entry<WebSocketConnection, Player> entry : players.entrySet()) {
-                    Player player = entry.getValue();
-                    if (player.isGameOver()) {
-                        player.deletePlayer(Game.this);
-                        players.remove(entry.getKey());
-                        //players.remove(player);
+
+                    if(tmpNumOfActivePlayers>numOfActivePlayers){
+                        for(Player player:players.values()){
+                            if(!player.isGameOver()){
+                                player.increaseScore(tmpNumOfActivePlayers-numOfActivePlayers);
+                            }
+                        }
                     }
-                }*/
 
 
+
+                    refreshGUI();
                     try {
                         Thread.sleep(GAME_SPEED);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     //controller.setScore(players.values());
+
                 }
 
                 gameState = GameStateEnum.ENDING;

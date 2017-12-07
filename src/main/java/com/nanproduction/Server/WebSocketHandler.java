@@ -58,12 +58,17 @@ public class WebSocketHandler extends BaseWebSocketHandler {
 
         if (player == null) {
             if (game.getGameState() == GameStateEnum.WAITING_FOR_PLAYERS) {
+
+                System.out.println(connection.hashCode()+" connected. Connections: "
+                        + (Game.getInstance().numOfActivePlayers+1));
                 game.addNewPlayer(connection,message);
 
-                connection.send("Welcome to the Arena!\n"
-                        + "Total No. of racers: " + game.getNumOfPlayers() + ".");
-                System.out.println("Someone connected. Connections: "
-                        + game.getNumOfPlayers());
+
+//                connection.send("Welcome to the Arena!\n"
+//                        + "Total No. of racers: " + game.getNumOfPlayers() + ".");
+
+                connection.send(String.valueOf(connection.hashCode()));
+
             } else {
                 connection.send("Your game is ended!");
             }
@@ -76,7 +81,7 @@ public class WebSocketHandler extends BaseWebSocketHandler {
                 player.setReady(true);
                 System.out.println("Player " + player.getId() + " is ready!");
             } else if (!message.equals("READY")){
-                System.out.println(player.getId() + ": " + message/*+" time:"+ System.currentTimeMillis()%10000*/);
+                //System.out.println(player.getId() + ": " + message/*+" time:"+ System.currentTimeMillis()%10000*/);
                 //Game.getInstance().addKeyCode(message);
                 player.setKeyCode(message);
                 //}
