@@ -32,7 +32,7 @@ public class WebSocketHandler extends BaseWebSocketHandler {
     }
 
     @Override
-    public void onMessage(WebSocketConnection connection, String message) {
+    synchronized public void onMessage(WebSocketConnection connection, String message) {
         //if the value of the players map is null, then adds the message, otherwise do nothing - first message must be the player name
         //players.putIfAbsent(connection, message);
         switch (message) {
@@ -77,6 +77,8 @@ public class WebSocketHandler extends BaseWebSocketHandler {
             if (game.getGameState() == GameStateEnum.WAITING_FOR_PLAYERS && message.equals("READY")) {
                 if(player.isGameOver()) {
                     game.readdNewPlayer(connection);
+                }else {
+                    Game.getInstance().numOfActivePlayers++;
                 }
                 player.setReady(true);
                 System.out.println("Player " + player.getId() + " is ready!");
