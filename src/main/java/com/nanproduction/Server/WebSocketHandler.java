@@ -77,7 +77,7 @@ public class WebSocketHandler extends BaseWebSocketHandler {
             if (game.getGameState() == GameStateEnum.WAITING_FOR_PLAYERS && message.equals("READY")) {
                 if(player.isGameOver()) {
                     game.readdNewPlayer(connection);
-                }else {
+                }else if(!player.isReady()){
                     Game.getInstance().numOfActivePlayers++;
                 }
                 player.setReady(true);

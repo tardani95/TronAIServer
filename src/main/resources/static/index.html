@@ -469,7 +469,7 @@
 
     function subscribeToWebSocket() {
         if ('WebSocket' in window) {
-            socket = new WebSocket('ws://localhost:8090/websocket');
+            socket = new WebSocket('ws://172.19.76.93:8090/websocket');
             socket.onopen = function () {
                 document.getElementById("HTML").className = "";
                 drawBaseMap();

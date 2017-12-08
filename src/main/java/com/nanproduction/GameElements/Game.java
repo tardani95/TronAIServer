@@ -314,8 +314,8 @@ public class Game {
                                     if (player1.getId() == player2.getId()) {
                                         continue;
                                     }
-                                    player1.collisionDetection(player2);
-                                    if (player1.isGameOver()) {
+                                    player2.collisionDetection(player1);
+                                    if (player2.isGameOver()) {
                                         printDiedPlayer(player1);
                                         numOfActivePlayers--;
                                         break;
